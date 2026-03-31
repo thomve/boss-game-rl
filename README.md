@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>⚔&nbsp; Boss Fight RL &nbsp;🐉</h1>
+<h1>⚔&nbsp; Boss Fight RL &nbsp;⚔</h1>
 
 <p><strong>A turn-based boss fight where a Deep Q-Network learns to defeat the Dragon Lord from scratch.</strong></p>
 
