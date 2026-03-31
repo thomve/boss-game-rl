@@ -17,19 +17,6 @@
 
 **Boss Fight RL** trains a DQN agent to fight a turn-based boss battle — abilities, cooldowns, mana, status effects and all — using a **pure NumPy neural network** (no PyTorch, no TensorFlow). Once trained, a **Pygame GUI** lets you watch the agent play in real time or take over the controls yourself.
 
-```
-┌──────────────────────┐     800 episodes     ┌──────────────────────┐
-│   BossFightGame      │ ──────────────────▶  │   trained_agent.json │
-│  turn-based engine   │                      │   DQN weights        │
-└──────────────────────┘                      └──────────────────────┘
-          │                                               │
-          ▼                                               ▼
-┌──────────────────────┐                      ┌──────────────────────┐
-│   BossFightEnv       │                      │   Pygame GUI         │
-│   Gym-like wrapper   │                      │   Watch or Play      │
-└──────────────────────┘                      └──────────────────────┘
-```
-
 ---
 
 ## Features
@@ -187,30 +174,6 @@ Training:  lr=0.0008 · γ=0.97 · ε 1.0→0.05 · buffer=30k · batch=128
 | Apply poison DoT | `+0.3` |
 | Player HP < 25% | `−0.2` |
 
----
-
-## GUI Layout
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  BOSS FIGHT RL          Turn 12 / 50                   Watch Agent  │  ← header
-├──────────────┬──────────────────────────────┬──────────────────────┤
-│  Hero        │  Combat Log                  │  Dragon Lord         │
-│  HP ████░░░  │  === Turn 12 ===             │  HP ██████░░░░░░░░   │
-│  MP ██████░  │    Hero uses Power Slash!    │  MP ████░░░░         │
-│  Effects:    │    Dragon Lord takes 30 dmg  │  Effects:            │
-│   shield(1t) │    Dragon Lord uses Enrage!  │   enraged(2t)        │
-│  Abilities:  │    Hero takes 35 damage      │                      │
-│  [0] Strike  │  === Turn 13 ===             │                      │
-│  [1] Power…  │    ...                       │                      │
-│  Q-chart ↓  │  ┌─────────────────────────┐ │                      │
-│             │  │ Q-Values bar chart       │ │                      │
-│             │  └─────────────────────────┘ │                      │
-├──────────────┴──────────────────────────────┴──────────────────────┤
-│  [ Strike ] [ Power Slash ] [  Heal  ] [ Poison Blade ] [Shield Up]│  ← ability btns
-│  [Watch Agent] [Play Yourself] [Auto: ON] [Next Turn] [New Game]   │  ← controls
-└─────────────────────────────────────────────────────────────────────┘
-```
 
 ---
 
