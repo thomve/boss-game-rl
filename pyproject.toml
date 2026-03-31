@@ -1,0 +1,10 @@
+[project]
+name = "boss-game-rl"
+version = "0.1.0"
+description = "Turn-based boss fight with a DQN agent trained from scratch using NumPy"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.4.4",
+    "pygame>=2.6.1",
+]
