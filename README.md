@@ -1,15 +1,8 @@
 <div align="center">
 
-```
-██████╗  ██████╗ ███████╗███████╗    ███████╗██╗ ██████╗ ██╗  ██╗████████╗    ██████╗ ██╗
-██╔══██╗██╔═══██╗██╔════╝██╔════╝    ██╔════╝██║██╔════╝ ██║  ██║╚══██╔══╝    ██╔══██╗██║
-██████╔╝██║   ██║███████╗███████╗    █████╗  ██║██║  ███╗███████║   ██║       ██████╔╝██║
-██╔══██╗██║   ██║╚════██║╚════██║    ██╔══╝  ██║██║   ██║██╔══██║   ██║       ██╔══██╗██║
-██████╔╝╚██████╔╝███████║███████║    ██║     ██║╚██████╔╝██║  ██║   ██║       ██║  ██║███████╗
-╚═════╝  ╚═════╝ ╚══════╝╚══════╝    ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═╝╚══════╝
-```
+<h1>⚔&nbsp; Boss Fight RL &nbsp;🐉</h1>
 
-**A turn-based boss fight where a Deep Q-Network learns to defeat the Dragon Lord from scratch.**
+<p><strong>A turn-based boss fight where a Deep Q-Network learns to defeat the Dragon Lord from scratch.</strong></p>
 
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Pygame](https://img.shields.io/badge/Pygame-2.6+-1A1A2E?style=flat-square)
