@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
@@ -12,9 +12,11 @@ import { QChartComponent } from './components/q-chart/q-chart.component';
 @Component({
     selector: 'app-game',
     imports: [
-        CommonModule, RouterLink,
-        FighterPanelComponent, CombatLogComponent, QChartComponent,
-    ],
+    RouterLink,
+    FighterPanelComponent,
+    CombatLogComponent,
+    QChartComponent
+],
     templateUrl: './game.component.html',
     styleUrls: ['./game.component.scss']
 })

@@ -2,7 +2,9 @@
 
   <!-- Background particles -->
   <div class="bg-particles">
-    <div class="particle" *ngFor="let p of particles" [style.left]="p.x + '%'" [style.animation-delay]="p.delay + 's'" [style.animation-duration]="p.duration + 's'"></div>
+    @for (p of particles; track p) {
+      <div class="particle" [style.left]="p.x + '%'" [style.animation-delay]="p.delay + 's'" [style.animation-duration]="p.duration + 's'"></div>
+    }
   </div>
 
   <!-- Header -->
@@ -32,11 +34,13 @@
   <!-- Action Cards -->
   <section class="cards-section">
     <a class="action-card card-watch" routerLink="/game" [queryParams]="{mode:'watch'}"
-       [class.disabled]="!hasAgent">
+      [class.disabled]="!hasAgent">
       <div class="card-icon">&#x1F916;</div>
       <h2>Watch Agent</h2>
       <p>Observe the trained DQN agent battle the Dragon Lord in real-time</p>
-      <div class="card-footer" *ngIf="!hasAgent">Requires trained agent</div>
+      @if (!hasAgent) {
+        <div class="card-footer">Requires trained agent</div>
+      }
       <div class="card-arrow">&#x2192;</div>
     </a>
 

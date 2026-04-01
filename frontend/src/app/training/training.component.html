@@ -20,22 +20,28 @@
         <div class="form-group">
           <label class="form-label">Episodes</label>
           <div class="episode-options">
-            <button *ngFor="let n of episodeOptions"
-                    class="ep-btn"
-                    [class.active]="selectedEpisodes === n"
-                    [disabled]="isTraining"
-                    (click)="selectEpisodes(n)">
-              {{ n }}
-            </button>
+            @for (n of episodeOptions; track n) {
+              <button
+                class="ep-btn"
+                [class.active]="selectedEpisodes === n"
+                [disabled]="isTraining"
+                (click)="selectEpisodes(n)">
+                {{ n }}
+              </button>
+            }
           </div>
         </div>
 
-        <button class="btn btn-gold start-btn" *ngIf="!isTraining" (click)="startTraining()">
-          &#x25B6; Start Training
-        </button>
-        <button class="btn btn-red start-btn" *ngIf="isTraining" (click)="stopTraining()">
-          &#x23F9; Stop Training
-        </button>
+        @if (!isTraining) {
+          <button class="btn btn-gold start-btn" (click)="startTraining()">
+            &#x25B6; Start Training
+          </button>
+        }
+        @if (isTraining) {
+          <button class="btn btn-red start-btn" (click)="stopTraining()">
+            &#x23F9; Stop Training
+          </button>
+        }
 
         <div class="warning-note">
           <p>Requires Python with numpy installed.</p>
@@ -44,79 +50,83 @@
       </div>
 
       <!-- Current Metrics -->
-      <div class="panel metrics-panel" *ngIf="latest">
-        <h2 class="section-title">Current Metrics</h2>
-
-        <div class="metric-item">
-          <span class="metric-label">Episode</span>
-          <span class="metric-value">{{ latest.episode }} / {{ selectedEpisodes }}</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Win Rate</span>
-          <span class="metric-value text-green">{{ (latest.winRate * 100).toFixed(1) }}%</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Avg Reward</span>
-          <span class="metric-value" [class.text-green]="latest.avgReward > 0" [class.text-red]="latest.avgReward < 0">
-            {{ latest.avgReward.toFixed(2) }}
-          </span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Avg Turns</span>
-          <span class="metric-value">{{ latest.avgTurns.toFixed(1) }}</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Epsilon</span>
-          <span class="metric-value text-gold">{{ latest.epsilon.toFixed(4) }}</span>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="progress-section">
-          <div class="progress-label">
-            <span>Progress</span>
-            <span>{{ getProgress().toFixed(0) }}%</span>
+      @if (latest) {
+        <div class="panel metrics-panel">
+          <h2 class="section-title">Current Metrics</h2>
+          <div class="metric-item">
+            <span class="metric-label">Episode</span>
+            <span class="metric-value">{{ latest.episode }} / {{ selectedEpisodes }}</span>
           </div>
-          <div class="progress-track">
-            <div class="progress-fill" [style.width]="getProgress() + '%'"></div>
+          <div class="metric-item">
+            <span class="metric-label">Win Rate</span>
+            <span class="metric-value text-green">{{ (latest.winRate * 100).toFixed(1) }}%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Avg Reward</span>
+            <span class="metric-value" [class.text-green]="latest.avgReward > 0" [class.text-red]="latest.avgReward < 0">
+              {{ latest.avgReward.toFixed(2) }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Avg Turns</span>
+            <span class="metric-value">{{ latest.avgTurns.toFixed(1) }}</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Epsilon</span>
+            <span class="metric-value text-gold">{{ latest.epsilon.toFixed(4) }}</span>
+          </div>
+          <!-- Progress Bar -->
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>Progress</span>
+              <span>{{ getProgress().toFixed(0) }}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" [style.width]="getProgress() + '%'"></div>
+            </div>
           </div>
         </div>
-      </div>
+      }
 
       <!-- Complete Banner -->
-      <div class="panel complete-panel" *ngIf="status === 'complete'">
-        <div class="complete-icon">&#x2705;</div>
-        <h3>Training Complete!</h3>
-        <p>Agent saved to <code>trained_agent.json</code></p>
-        <a routerLink="/game" [queryParams]="{mode:'watch'}" class="btn btn-gold">Watch Agent &#x2192;</a>
-      </div>
+      @if (status === 'complete') {
+        <div class="panel complete-panel">
+          <div class="complete-icon">&#x2705;</div>
+          <h3>Training Complete!</h3>
+          <p>Agent saved to <code>trained_agent.json</code></p>
+          <a routerLink="/game" [queryParams]="{mode:'watch'}" class="btn btn-gold">Watch Agent &#x2192;</a>
+        </div>
+      }
     </div>
 
     <!-- Right: Charts -->
     <div class="charts-area">
       <div class="panel chart-panel">
         <h2 class="section-title">Average Reward</h2>
-        <div class="chart-container" *ngIf="metrics.length; else noData">
-          <canvas #rewardCanvas></canvas>
-        </div>
-        <ng-template #noData>
+        @if (metrics.length) {
+          <div class="chart-container">
+            <canvas #rewardCanvas></canvas>
+          </div>
+        } @else {
           <div class="chart-placeholder">
             <div class="placeholder-icon">&#x1F4C8;</div>
             <p>Start training to see reward curve</p>
           </div>
-        </ng-template>
+        }
       </div>
 
       <div class="panel chart-panel">
         <h2 class="section-title">Win Rate (%)</h2>
-        <div class="chart-container" *ngIf="metrics.length; else noDataWin">
-          <canvas #winCanvas></canvas>
-        </div>
-        <ng-template #noDataWin>
+        @if (metrics.length) {
+          <div class="chart-container">
+            <canvas #winCanvas></canvas>
+          </div>
+        } @else {
           <div class="chart-placeholder">
             <div class="placeholder-icon">&#x1F3C6;</div>
             <p>Win rate will appear as training progresses</p>
           </div>
-        </ng-template>
+        }
       </div>
     </div>
 

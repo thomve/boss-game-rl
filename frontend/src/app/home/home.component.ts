@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { GameService } from '../services/game.service';
 
 @Component({
     selector: 'app-home',
-    imports: [RouterLink, CommonModule],
+    imports: [RouterLink],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss']
 })

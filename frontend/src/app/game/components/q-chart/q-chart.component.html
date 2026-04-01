@@ -1,9 +1,10 @@
 <div class="q-chart-wrapper">
   <div class="q-chart-title">Q-Values <span class="dim">(agent preference)</span></div>
-  <div class="chart-area" *ngIf="qValues; else noAgent">
-    <canvas #chartCanvas></canvas>
-  </div>
-  <ng-template #noAgent>
+  @if (qValues) {
+    <div class="chart-area">
+      <canvas #chartCanvas></canvas>
+    </div>
+  } @else {
     <div class="no-agent-msg">Load a trained agent to see Q-values</div>
-  </ng-template>
+  }
 </div>

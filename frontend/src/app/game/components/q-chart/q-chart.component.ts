@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import type { Chart as ChartJS } from 'chart.js';
 
 const ABILITY_NAMES = ['Strike', 'Power Slash', 'Heal', 'Poison Blade', 'Shield Up'];
@@ -8,7 +8,7 @@ const ABILITY_COLORS_UNAVAIL = ['#555540', '#553030', '#305530', '#442255', '#25
 
 @Component({
     selector: 'app-q-chart',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './q-chart.component.html',
     styleUrls: ['./q-chart.component.scss']
 })
