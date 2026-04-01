@@ -46,3 +46,4 @@ backend/node_modules
 
 # ── Frontend ─────────────────────────────────────────────────────────────────
 frontend/node_modules
+frontend/.angular/

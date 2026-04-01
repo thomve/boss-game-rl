@@ -28,7 +28,7 @@
   </div>
 
   <!-- Status Effects -->
-  @if (fighter.effects?.length) {
+  @if (fighter.effects.length) {
     <div class="effects-row">
       @for (eff of fighter.effects; track eff) {
         <span class="effect-badge" [ngClass]="eff.name">
