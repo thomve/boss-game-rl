@@ -7,11 +7,10 @@ const ABILITY_COLORS_AVAIL = ['#e6c35a', '#d24141', '#46be50', '#9b59b6', '#4a9e
 const ABILITY_COLORS_UNAVAIL = ['#555540', '#553030', '#305530', '#442255', '#253344'];
 
 @Component({
-  selector: 'app-q-chart',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './q-chart.component.html',
-  styleUrls: ['./q-chart.component.scss'],
+    selector: 'app-q-chart',
+    imports: [CommonModule],
+    templateUrl: './q-chart.component.html',
+    styleUrls: ['./q-chart.component.scss']
 })
 export class QChartComponent implements OnChanges, AfterViewInit {
   @Input() qValues: number[] | null = null;

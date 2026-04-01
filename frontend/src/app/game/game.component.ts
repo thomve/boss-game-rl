@@ -10,14 +10,13 @@ import { CombatLogComponent } from './components/combat-log/combat-log.component
 import { QChartComponent } from './components/q-chart/q-chart.component';
 
 @Component({
-  selector: 'app-game',
-  standalone: true,
-  imports: [
-    CommonModule, RouterLink,
-    FighterPanelComponent, CombatLogComponent, QChartComponent,
-  ],
-  templateUrl: './game.component.html',
-  styleUrls: ['./game.component.scss'],
+    selector: 'app-game',
+    imports: [
+        CommonModule, RouterLink,
+        FighterPanelComponent, CombatLogComponent, QChartComponent,
+    ],
+    templateUrl: './game.component.html',
+    styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit, OnDestroy {
   state: GameState | null = null;

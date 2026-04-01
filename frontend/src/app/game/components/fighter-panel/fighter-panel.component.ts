@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FighterState, AbilityState } from '../../../services/game.service';
 
 @Component({
-  selector: 'app-fighter-panel',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './fighter-panel.component.html',
-  styleUrls: ['./fighter-panel.component.scss'],
+    selector: 'app-fighter-panel',
+    imports: [CommonModule],
+    templateUrl: './fighter-panel.component.html',
+    styleUrls: ['./fighter-panel.component.scss']
 })
 export class FighterPanelComponent implements OnChanges {
   @Input() fighter!: FighterState;

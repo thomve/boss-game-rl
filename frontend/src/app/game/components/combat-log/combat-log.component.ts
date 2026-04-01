@@ -7,11 +7,10 @@ interface LogEntry {
 }
 
 @Component({
-  selector: 'app-combat-log',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './combat-log.component.html',
-  styleUrls: ['./combat-log.component.scss'],
+    selector: 'app-combat-log',
+    imports: [CommonModule],
+    templateUrl: './combat-log.component.html',
+    styleUrls: ['./combat-log.component.scss']
 })
 export class CombatLogComponent implements OnChanges, AfterViewChecked {
   @Input() logs: string[] = [];

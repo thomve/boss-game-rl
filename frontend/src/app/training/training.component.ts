@@ -7,11 +7,10 @@ import { WebsocketService } from '../services/websocket.service';
 import { TrainingService, TrainingMetric } from '../services/training.service';
 
 @Component({
-  selector: 'app-training',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './training.component.html',
-  styleUrls: ['./training.component.scss'],
+    selector: 'app-training',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './training.component.html',
+    styleUrls: ['./training.component.scss']
 })
 export class TrainingComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('rewardCanvas') rewardCanvas!: ElementRef<HTMLCanvasElement>;
