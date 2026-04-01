@@ -1,0 +1,163 @@
+.fighter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  height: 100%;
+}
+
+.fighter-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--panel-border);
+
+  &.player-name {
+    color: var(--gold);
+    text-shadow: 0 0 16px rgba(230, 195, 90, 0.4);
+  }
+
+  &.boss-name {
+    color: var(--red);
+    text-shadow: 0 0 16px rgba(210, 65, 65, 0.4);
+  }
+}
+
+.stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+
+  .stat-max {
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .stat-icon { font-size: 0.85rem; }
+  .mana-icon { filter: hue-rotate(200deg); }
+}
+
+.bar-track {
+  height: 10px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.effects-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 24px;
+}
+
+/* ─── Abilities ─────────────────────────────────────────────────────────── */
+.abilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+  flex: 1;
+}
+
+.ability-item {
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+
+  &.ability-available {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(230, 195, 90, 0.2);
+
+    &:hover {
+      background: rgba(230, 195, 90, 0.08);
+      border-color: rgba(230, 195, 90, 0.4);
+    }
+  }
+
+  &.ability-disabled {
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.04);
+    opacity: 0.55;
+  }
+}
+
+.ability-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ability-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex: 1;
+  color: var(--text);
+}
+
+.ability-cost {
+  font-size: 0.72rem;
+  color: var(--blue);
+  background: rgba(74,158,221,0.12);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.ability-cd {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ─── Q-Value Bar ───────────────────────────────────────────────────────── */
+.q-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.q-bar-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.q-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  min-width: 2px;
+}
+
+.q-value {
+  font-family: 'Rajdhani', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 40px;
+  text-align: right;
+}

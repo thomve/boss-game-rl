@@ -1,0 +1,315 @@
+.training-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at bottom right, #1e103a 0%, var(--bg) 60%);
+}
+
+/* ─── Top Bar ───────────────────────────────────────────────────────────── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(0,0,0,0.3);
+  border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
+}
+
+.back-btn {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transition: color 0.2s;
+  &:hover { color: var(--gold); }
+}
+
+.training-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  flex: 1;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  &.status-idle {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-dim);
+    .status-dot { background: var(--text-muted); }
+  }
+
+  &.status-training {
+    background: rgba(155, 89, 182, 0.15);
+    border: 1px solid var(--purple);
+    color: var(--purple);
+    .status-dot {
+      background: var(--purple);
+      animation: blink 0.8s ease-in-out infinite;
+    }
+  }
+
+  &.status-complete {
+    background: rgba(70, 190, 80, 0.15);
+    border: 1px solid var(--green);
+    color: var(--green);
+    .status-dot { background: var(--green); }
+  }
+
+  &.status-error {
+    background: rgba(210, 65, 65, 0.15);
+    border: 1px solid var(--red);
+    color: var(--red);
+    .status-dot { background: var(--red); }
+  }
+}
+
+/* ─── Content Layout ────────────────────────────────────────────────────── */
+.content {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ─── Sidebar ───────────────────────────────────────────────────────────── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.episode-options {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ep-btn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  color: var(--text-dim);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.active {
+    background: rgba(230, 195, 90, 0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  &:hover:not(.active):not(:disabled) {
+    border-color: var(--text-dim);
+    color: var(--text);
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.start-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.warning-note {
+  p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 0.2rem;
+  }
+}
+
+/* ─── Metrics Panel ─────────────────────────────────────────────────────── */
+.metrics-panel {
+  animation: fadeIn 0.3s ease;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+
+  &:last-of-type { border-bottom: none; }
+}
+
+.metric-label {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.metric-value {
+  font-family: 'Rajdhani', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.progress-section {
+  margin-top: 1rem;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.progress-track {
+  height: 8px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), #c77dff);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* ─── Complete Panel ────────────────────────────────────────────────────── */
+.complete-panel {
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+
+  .complete-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+  h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--green);
+    margin-bottom: 0.4rem;
+  }
+
+  p {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+
+    code {
+      color: var(--gold);
+      font-size: 0.78rem;
+      background: rgba(255,255,255,0.05);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+  }
+
+  .btn { width: 100%; }
+}
+
+/* ─── Charts ────────────────────────────────────────────────────────────── */
+.charts-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chart-panel {
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+
+  .section-title { flex-shrink: 0; }
+}
+
+.chart-container {
+  flex: 1;
+  position: relative;
+  min-height: 160px;
+}
+
+.chart-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+
+  .placeholder-icon { font-size: 2.5rem; opacity: 0.4; }
+
+  p {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 750px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,59 @@
+<div class="fighter-panel" [class.player-panel]="isPlayer" [class.boss-panel]="!isPlayer">
+  <!-- Name -->
+  <div class="fighter-name" [class.player-name]="isPlayer" [class.boss-name]="!isPlayer">
+    {{ fighter.name }}
+  </div>
+
+  <!-- HP Bar -->
+  <div class="stat-row">
+    <div class="stat-label">
+      <span class="stat-icon">&#x2665;</span>
+      <span>{{ fighter.hp }}<span class="stat-max"> / {{ fighter.maxHp }}</span></span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill hp-fill" [class.medium]="hpClass==='medium'" [class.low]="hpClass==='low'"
+           [style.width]="hpPercent + '%'"></div>
+    </div>
+  </div>
+
+  <!-- Mana Bar -->
+  <div class="stat-row">
+    <div class="stat-label">
+      <span class="stat-icon mana-icon">&#x1F4A7;</span>
+      <span>{{ fighter.mana }}<span class="stat-max"> / {{ fighter.maxMana }}</span></span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill mana-fill" [style.width]="manaPercent + '%'"></div>
+    </div>
+  </div>
+
+  <!-- Status Effects -->
+  <div class="effects-row" *ngIf="fighter.effects?.length">
+    <span *ngFor="let eff of fighter.effects" class="effect-badge" [ngClass]="eff.name">
+      {{ eff.name }} ({{ eff.duration }})
+    </span>
+  </div>
+
+  <!-- Abilities (player only) -->
+  <div class="abilities-list" *ngIf="isPlayer && fighter.abilities">
+    <div *ngFor="let ab of fighter.abilities; let i = index; trackBy: trackByName"
+         class="ability-item"
+         [class.ability-available]="ab.available"
+         [class.ability-disabled]="!ab.available">
+
+      <div class="ability-header">
+        <span class="ability-name">{{ ab.name }}</span>
+        <span class="ability-cost" *ngIf="ab.manaCost > 0">{{ ab.manaCost }}mp</span>
+        <span class="ability-cd" *ngIf="ab.currentCooldown > 0">CD: {{ ab.currentCooldown }}</span>
+      </div>
+
+      <!-- Q-value bar (watch mode) -->
+      <div class="q-bar-row" *ngIf="watchMode && qValues">
+        <div class="q-bar-track">
+          <div class="q-bar-fill" [style.width]="getQBar(i) + '%'" [style.background]="getQColor(i)"></div>
+        </div>
+        <span class="q-value" [style.color]="getQColor(i)">{{ qValues[i] | number:'1.2-2' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

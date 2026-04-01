@@ -1,0 +1,269 @@
+/* ─── CSS Custom Properties ─────────────────────────────────────────────── */
+:root {
+  --bg: #12121c;
+  --panel: #1a1a2e;
+  --panel-light: #202040;
+  --panel-border: #303060;
+  --panel-border-glow: #4444aa44;
+  --gold: #e6c35a;
+  --gold-dim: #a08830;
+  --red: #d24141;
+  --red-dim: #8a2020;
+  --blue: #4a9edd;
+  --blue-dim: #2a5a88;
+  --green: #46be50;
+  --green-dim: #2a7a30;
+  --yellow: #c8b432;
+  --purple: #9b59b6;
+  --purple-dim: #6a2a88;
+  --orange: #e67e22;
+  --text: #e0e0f0;
+  --text-dim: #8888aa;
+  --text-muted: #555577;
+  --shadow: rgba(0, 0, 0, 0.6);
+}
+
+/* ─── Reset & Base ──────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ─── Typography ────────────────────────────────────────────────────────── */
+h1, h2, h3, .fantasy-title {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Scrollbars ────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--panel);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--panel-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dim);
+}
+
+/* ─── Utility ───────────────────────────────────────────────────────────── */
+.text-gold { color: var(--gold); }
+.text-red  { color: var(--red); }
+.text-blue { color: var(--blue); }
+.text-green { color: var(--green); }
+.text-dim  { color: var(--text-dim); }
+
+.glow-gold { text-shadow: 0 0 12px var(--gold), 0 0 24px var(--gold-dim); }
+.glow-red  { text-shadow: 0 0 12px var(--red), 0 0 24px var(--red-dim); }
+
+/* ─── Panel Base ────────────────────────────────────────────────────────── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 24px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, rgba(68,68,170,0.12), transparent 60%) border-box;
+    pointer-events: none;
+  }
+}
+
+/* ─── HP Bar Colors ─────────────────────────────────────────────────────── */
+.bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+.hp-fill {
+  background: var(--green);
+
+  &.medium {
+    background: var(--yellow);
+  }
+
+  &.low {
+    background: var(--red);
+    animation: pulse-red 1.5s infinite;
+  }
+}
+
+.mana-fill {
+  background: linear-gradient(90deg, var(--blue-dim), var(--blue));
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ─── Status Badges ─────────────────────────────────────────────────────── */
+.effect-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: 'Rajdhani', sans-serif;
+
+  &.poison {
+    background: rgba(155, 89, 182, 0.25);
+    border: 1px solid var(--purple);
+    color: #c77dff;
+    box-shadow: 0 0 8px rgba(155, 89, 182, 0.4);
+  }
+  &.shield {
+    background: rgba(74, 158, 221, 0.25);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    box-shadow: 0 0 8px rgba(74, 158, 221, 0.4);
+  }
+  &.stunned {
+    background: rgba(200, 180, 50, 0.25);
+    border: 1px solid var(--yellow);
+    color: var(--yellow);
+    box-shadow: 0 0 8px rgba(200, 180, 50, 0.4);
+  }
+  &.regen {
+    background: rgba(70, 190, 80, 0.25);
+    border: 1px solid var(--green);
+    color: var(--green);
+    box-shadow: 0 0 8px rgba(70, 190, 80, 0.4);
+  }
+  &.enraged {
+    background: rgba(210, 65, 65, 0.25);
+    border: 1px solid var(--red);
+    color: var(--red);
+    box-shadow: 0 0 8px rgba(210, 65, 65, 0.5);
+    animation: pulse-red 1s infinite;
+  }
+  &.weakened {
+    background: rgba(230, 126, 34, 0.25);
+    border: 1px solid var(--orange);
+    color: var(--orange);
+    box-shadow: 0 0 8px rgba(230, 126, 34, 0.4);
+  }
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &.btn-gold {
+    background: linear-gradient(135deg, #c8a030, #e6c35a);
+    border-color: var(--gold);
+    color: #1a1500;
+
+    &:hover {
+      box-shadow: 0 0 20px rgba(230, 195, 90, 0.5);
+      transform: translateY(-1px);
+    }
+    &:active { transform: translateY(0); }
+  }
+
+  &.btn-outline {
+    background: transparent;
+    border-color: var(--panel-border);
+    color: var(--text-dim);
+
+    &:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+  }
+
+  &.btn-red {
+    background: linear-gradient(135deg, #8a2020, #d24141);
+    border-color: var(--red);
+    color: #fff;
+
+    &:hover {
+      box-shadow: 0 0 20px rgba(210, 65, 65, 0.4);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.btn-blue {
+    background: linear-gradient(135deg, #2a5a88, #4a9edd);
+    border-color: var(--blue);
+    color: #fff;
+
+    &:hover {
+      box-shadow: 0 0 20px rgba(74, 158, 221, 0.4);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* ─── Animations ────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-in { animation: fadeIn 0.4s ease forwards; }

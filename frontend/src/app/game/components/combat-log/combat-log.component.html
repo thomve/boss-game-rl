@@ -1,0 +1,13 @@
+<div class="log-wrapper">
+  <div class="log-header">
+    <span class="log-title">Combat Log</span>
+  </div>
+  <div class="log-container" #logContainer>
+    <div *ngIf="parsedLogs.length === 0" class="log-empty">
+      Awaiting combat...
+    </div>
+    <div *ngFor="let entry of parsedLogs" class="log-line" [ngClass]="entry.cssClass">
+      {{ entry.text }}
+    </div>
+  </div>
+</div>

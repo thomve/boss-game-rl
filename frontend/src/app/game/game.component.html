@@ -1,0 +1,131 @@
+<div class="game-layout">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <a routerLink="/" class="back-btn">&#x2190; Home</a>
+    <div class="game-title">
+      <span class="glow-gold">BOSS FIGHT</span>
+      <span class="mode-badge" [class.mode-watch]="mode==='watch'" [class.mode-play]="mode==='play'">
+        {{ mode === 'watch' ? 'Watch' : 'Play' }} Mode
+      </span>
+    </div>
+
+    <!-- Turn counter -->
+    <div class="turn-info" *ngIf="state">
+      <span class="turn-label">Turn</span>
+      <span class="turn-number">{{ state.turn }} / {{ state.maxTurns }}</span>
+      <div class="turn-bar">
+        <div class="turn-fill" [style.width]="getTurnProgress() + '%'"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Overlay -->
+  <div class="result-overlay" *ngIf="state?.done">
+    <div class="result-card" [class.result-win]="state?.winner==='player'" [class.result-lose]="state?.winner!=='player'">
+      <div class="result-icon">{{ state?.winner === 'player' ? '&#x1F3C6;' : '&#x1F480;' }}</div>
+      <h2>{{ state?.winner === 'player' ? 'VICTORY!' : 'DEFEATED' }}</h2>
+      <p>Battle ended on turn {{ state?.turn }}</p>
+      <button class="btn btn-gold" (click)="resetGame()">Play Again</button>
+    </div>
+  </div>
+
+  <!-- Main 3-Panel Layout -->
+  <div class="panels" *ngIf="state">
+
+    <!-- Left: Hero Panel -->
+    <div class="panel left-panel">
+      <app-fighter-panel
+        [fighter]="state.player"
+        [isPlayer]="true"
+        [qValues]="mode === 'watch' ? state.qValues : null"
+        [watchMode]="mode === 'watch'">
+      </app-fighter-panel>
+    </div>
+
+    <!-- Center: Log + Q-Chart -->
+    <div class="center-panel">
+      <!-- Q Chart (watch mode) -->
+      <div class="panel q-chart-panel" *ngIf="mode === 'watch' && state.hasAgent">
+        <app-q-chart [qValues]="state.qValues" [actionMask]="getActionMask()"></app-q-chart>
+      </div>
+
+      <!-- Combat Log -->
+      <div class="panel log-panel">
+        <app-combat-log [logs]="state.log"></app-combat-log>
+      </div>
+    </div>
+
+    <!-- Right: Boss Panel -->
+    <div class="panel right-panel">
+      <app-fighter-panel
+        [fighter]="getBossAsFighter(state.boss)"
+        [isPlayer]="false">
+      </app-fighter-panel>
+    </div>
+
+  </div>
+
+  <!-- Loading state -->
+  <div class="loading" *ngIf="!state">
+    <div class="loading-spinner"></div>
+    <p>Connecting to game server...</p>
+  </div>
+
+  <!-- Footer Controls -->
+  <div class="footer-controls" *ngIf="state">
+
+    <!-- Mode Selector -->
+    <div class="control-group">
+      <button class="btn" [class.btn-gold]="mode==='watch'" [class.btn-outline]="mode!=='watch'"
+              (click)="setMode('watch')">Watch Agent</button>
+      <button class="btn" [class.btn-blue]="mode==='play'" [class.btn-outline]="mode!=='play'"
+              (click)="setMode('play')">Play Yourself</button>
+    </div>
+
+    <!-- Watch Mode: Agent controls -->
+    <ng-container *ngIf="mode === 'watch'">
+      <div class="control-group">
+        <button class="btn btn-gold" (click)="agentStep()" [disabled]="state.done || !state.hasAgent || isThinking">
+          {{ isThinking ? 'Thinking...' : 'Step Agent' }}
+        </button>
+        <button class="btn" [class.btn-red]="autoPlay" [class.btn-outline]="!autoPlay"
+                (click)="toggleAutoPlay()" [disabled]="state.done || !state.hasAgent">
+          {{ autoPlay ? '&#x23F8; Stop' : '&#x25B6; Auto Play' }}
+        </button>
+      </div>
+      <div class="control-group speed-group" *ngIf="autoPlay">
+        <span class="ctrl-label">Speed</span>
+        <button class="btn btn-outline btn-sm" [class.active]="autoPlaySpeed===1200" (click)="setSpeed(1200)">Slow</button>
+        <button class="btn btn-outline btn-sm" [class.active]="autoPlaySpeed===700" (click)="setSpeed(700)">Normal</button>
+        <button class="btn btn-outline btn-sm" [class.active]="autoPlaySpeed===200" (click)="setSpeed(200)">Fast</button>
+      </div>
+      <div class="no-agent-warn" *ngIf="!state.hasAgent">
+        No trained agent loaded. Go to <a routerLink="/training">Training</a> to train one.
+      </div>
+    </ng-container>
+
+    <!-- Play Mode: Action buttons -->
+    <ng-container *ngIf="mode === 'play'">
+      <div class="action-buttons">
+        <button *ngFor="let ab of state.player.abilities; let i = index"
+                class="action-btn"
+                [class.action-available]="ab.available"
+                [class.action-disabled]="!ab.available"
+                [disabled]="!ab.available || state.done"
+                (click)="doAction(i)">
+          <span class="ab-name">{{ ab.name }}</span>
+          <span class="ab-meta" *ngIf="ab.manaCost > 0">{{ ab.manaCost }}mp</span>
+          <span class="ab-cd" *ngIf="ab.currentCooldown > 0">{{ ab.currentCooldown }}</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Reset -->
+    <div class="control-group">
+      <button class="btn btn-outline" (click)="resetGame()">&#x21BA; Reset</button>
+    </div>
+
+  </div>
+
+</div>

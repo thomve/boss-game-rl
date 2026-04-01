@@ -37,3 +37,12 @@ trained_agent.json
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ── Claude ───────────────────────────────────────────────────────────────────
+.claude
+
+# ── Backend ──────────────────────────────────────────────────────────────────
+backend/node_modules
+
+# ── Frontend ─────────────────────────────────────────────────────────────────
+frontend/node_modules
