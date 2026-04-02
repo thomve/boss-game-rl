@@ -5,9 +5,9 @@
 <p><strong>A turn-based boss fight where a Deep Q-Network learns to defeat the Dragon Lord from scratch.</strong></p>
 
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)
-![Pygame](https://img.shields.io/badge/Pygame-2.6+-1A1A2E?style=flat-square)
+![Angular](https://img.shields.io/badge/Angular-21-DD0031?style=flat-square&logo=angular&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-backend-339933?style=flat-square&logo=node.js&logoColor=white)
 ![NumPy](https://img.shields.io/badge/NumPy-only-013243?style=flat-square&logo=numpy)
-![uv](https://img.shields.io/badge/uv-managed-DE5FE9?style=flat-square)
 
 </div>
 
@@ -15,7 +15,13 @@
 
 ## Overview
 
-**Boss Fight RL** trains a DQN agent to fight a turn-based boss battle — abilities, cooldowns, mana, status effects and all — using a **pure NumPy neural network** (no PyTorch, no TensorFlow). Once trained, a **Pygame GUI** lets you watch the agent play in real time or take over the controls yourself.
+**Boss Fight RL** trains a DQN agent to fight a turn-based boss battle — abilities, cooldowns, mana, status effects and all — using a **pure NumPy neural network** (no PyTorch, no TensorFlow).
+
+The project is split into three layers:
+
+- **Python** — game engine, environment, DQN agent, and training script
+- **Node.js backend** — Express + WebSocket server that spawns the Python training process and streams metrics in real time
+- **Angular frontend** — web UI for training the agent, watching it play, and playing manually
 
 ---
 
@@ -24,77 +30,131 @@
 - **Custom DQN** — experience replay, target network, epsilon-greedy with decay, action masking
 - **Rich game mechanics** — 5 player abilities, 5 boss abilities, 6 status effects (poison, shield, stun, regen, enrage, weaken), mana & cooldown systems
 - **Shaped reward function** — damage dealt, damage taken, HP advantage, DoT bonus, survival pressure
-- **Pygame GUI** — live HP/mana bars, combat log, Q-value bar chart, Watch/Play mode toggle
-- **Zero heavy dependencies** — the entire agent and game engine run on NumPy only
+- **Web UI** — live training charts (avg reward, win rate), current metrics panel, Watch/Play mode
+- **Real-time streaming** — training progress pushed over WebSocket; navigate away and come back without losing state
+- **Zero heavy ML dependencies** — the entire agent and game engine run on NumPy only
+
+---
+
+## Project Structure
+
+```
+boss-game-rl/
+├── game_engine.py        # Core game: Fighter, Ability, StatusEffect, BossFightGame
+├── environment.py        # Gym-style wrapper: BossFightEnv
+├── agent.py              # DQN: NeuralNetwork (NumPy) + DQNAgent
+├── train.py              # Standalone training loop (CLI)
+├── train_stream.py       # Streaming training loop (used by backend)
+├── gui.py                # Pygame GUI (legacy Watch / Play modes)
+├── trained_agent.json    # Serialised agent weights (generated after training)
+├── pyproject.toml        # Python metadata & dependencies (uv)
+│
+├── backend/              # Node.js server
+│   ├── src/
+│   │   ├── index.js              # Express + WebSocket entry point (port 3000)
+│   │   ├── websocket/handler.js  # Message routing
+│   │   ├── training/manager.js   # Spawns train_stream.py, broadcasts metrics
+│   │   └── game/                 # JS game state & agent loader
+│   └── package.json
+│
+└── frontend/             # Angular 21 app
+    ├── src/app/
+    │   ├── training/     # Training page (config, live charts, metrics)
+    │   ├── game/         # Game page (Watch / Play mode)
+    │   ├── home/         # Home page
+    │   └── services/     # WebsocketService, TrainingService, GameService
+    └── package.json
+```
 
 ---
 
 ## Quick Start
 
-### With uv (recommended)
+### Prerequisites
+
+| Tool | Version |
+|------|---------|
+| Python | 3.12+ |
+| Node.js | 18+ |
+| npm | 9+ |
+
+### 1 — Python environment
+
+#### With uv (recommended)
 
 ```bash
-# Install uv if you haven't already
-# Windows (PowerShell)
+# Install uv — Windows (PowerShell)
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-# macOS / Linux
+# Install uv — macOS / Linux
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 ```bash
-git clone <repo-url>
 cd boss-game-rl
-
-# Create venv and install dependencies in one step
 uv sync
-
-# Run the GUI
-uv run python gui.py
 ```
 
-### With pip
+#### With pip
 
 ```bash
-git clone <repo-url>
 cd boss-game-rl
-
 python -m venv .venv
+
 # Windows
 .venv\Scripts\activate
 # macOS / Linux
 source .venv/bin/activate
 
 pip install numpy pygame
-python gui.py
 ```
+
+### 2 — Backend
+
+```bash
+cd backend
+npm install
+npm start          # or: npm run dev  (nodemon, auto-reload)
+```
+
+The backend listens on **http://localhost:3000** and **ws://localhost:3000**.
+
+### 3 — Frontend
+
+```bash
+cd frontend
+npm install
+npm start          # serves on http://localhost:4200
+```
+
+Open **http://localhost:4200** in your browser.
 
 ---
 
 ## Usage
 
-### Launch the GUI
+### Web UI
+
+| Page | Path | What it does |
+|------|------|--------------|
+| Home | `/` | Overview and navigation |
+| Training | `/training` | Configure episodes, start/stop training, live charts |
+| Game | `/game` | Watch the trained agent play or play yourself |
+
+**Training flow:**
+1. Go to the Training page
+2. Select the number of episodes (100 / 200 / 500 / 800)
+3. Click **Start Training** — progress streams in real time via WebSocket
+4. When complete, the agent is saved to `trained_agent.json` and auto-loaded in the Game page
+
+### Standalone CLI training
 
 ```bash
-uv run python gui.py
-```
-
-The GUI opens in **Watch mode** if `trained_agent.json` is present, or **Play mode** if it isn't.
-
-| Control | Action |
-|---------|--------|
-| `R` | New game |
-| `0` – `4` | Use ability (Play mode) |
-| `Space` | Next turn (Watch / manual) |
-| Click `Watch Agent` | Switch to agent mode |
-| Click `Play Yourself` | Switch to player mode |
-| Click `Auto: ON/OFF` | Toggle auto-advance |
-| Click `New Game` | Reset |
-
-### Train the agent
-
-```bash
+# With uv
 uv run python train.py
+
+# With activated venv
+python train.py
 ```
 
 Training runs for 800 episodes and prints rolling metrics every 50 episodes:
@@ -106,22 +166,22 @@ Ep  500 | Avg Reward:    4.87 | Win Rate:  61.0% | Avg Turns:  27.1 | Epsilon: 0
 Ep  800 | Avg Reward:    7.34 | Win Rate:  78.0% | Avg Turns:  22.8 | Epsilon: 0.5910
 ```
 
-Weights are saved to `trained_agent.json` and full evaluation replays are printed as JSON on stdout.
+### Pygame GUI (legacy)
 
----
-
-## Project Structure
-
+```bash
+uv run python gui.py
 ```
-boss-game-rl/
-├── game_engine.py      # Core game: Fighter, Ability, StatusEffect, BossFightGame
-├── environment.py      # Gym-style wrapper: BossFightEnv
-├── agent.py            # DQN: NeuralNetwork (NumPy) + DQNAgent
-├── train.py            # Training loop + evaluation output
-├── gui.py              # Pygame GUI (Watch / Play modes)
-├── trained_agent.json  # Serialised agent weights
-└── pyproject.toml      # Project metadata & dependencies (uv)
-```
+
+Opens in **Watch mode** if `trained_agent.json` exists, otherwise **Play mode**.
+
+| Control | Action |
+|---------|--------|
+| `R` | New game |
+| `0` – `4` | Use ability (Play mode) |
+| `Space` | Next turn |
+| Click `Watch Agent` | Switch to agent mode |
+| Click `Play Yourself` | Switch to player mode |
+| Click `Auto: ON/OFF` | Toggle auto-advance |
 
 ---
 
@@ -174,17 +234,47 @@ Training:  lr=0.0008 · γ=0.97 · ε 1.0→0.05 · buffer=30k · batch=128
 | Apply poison DoT | `+0.3` |
 | Player HP < 25% | `−0.2` |
 
+### WebSocket Message Reference
+
+| Direction | Message type | Payload |
+|-----------|-------------|---------|
+| Client → Server | `start_training` | `{ episodes: number }` |
+| Client → Server | `stop_training` | — |
+| Client → Server | `game_action` | `{ action: 0–4 }` |
+| Client → Server | `game_reset` | — |
+| Client → Server | `game_mode` | `{ mode: 'watch' \| 'play' }` |
+| Server → Client | `training_started` | `{ episodes }` |
+| Server → Client | `training_progress` | `{ data: { episode, total, avg_reward, win_rate, avg_turns, epsilon } }` |
+| Server → Client | `training_complete` | — |
+| Server → Client | `training_stopped` | — |
+| Server → Client | `game_state` | full game state object |
 
 ---
 
 ## Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `numpy` | ≥ 2.4 | Neural network, state arrays |
-| `pygame` | ≥ 2.6 | GUI rendering |
+### Python
 
-Python standard library only beyond those two.
+| Package | Purpose |
+|---------|---------|
+| `numpy` ≥ 2.4 | Neural network, state arrays |
+| `pygame` ≥ 2.6 | Legacy Pygame GUI |
+
+### Backend (Node.js)
+
+| Package | Purpose |
+|---------|---------|
+| `express` ^4.18 | REST API |
+| `ws` ^8.16 | WebSocket server |
+| `cors` ^2.8 | CORS middleware |
+
+### Frontend (Angular 21)
+
+| Package | Purpose |
+|---------|---------|
+| `@angular/core` ^21.2 | Framework |
+| `chart.js` ^4.5 | Training charts |
+| `rxjs` ~7.8 | Reactive streams |
 
 ---
 
