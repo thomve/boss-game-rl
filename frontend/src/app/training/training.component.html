@@ -103,11 +103,10 @@
     <div class="charts-area">
       <div class="panel chart-panel">
         <h2 class="section-title">Average Reward</h2>
-        @if (metrics.length) {
-          <div class="chart-container">
-            <canvas #rewardCanvas></canvas>
-          </div>
-        } @else {
+        <div class="chart-container" [style.display]="metrics.length ? 'block' : 'none'">
+          <canvas #rewardCanvas></canvas>
+        </div>
+        @if (!metrics.length) {
           <div class="chart-placeholder">
             <div class="placeholder-icon">&#x1F4C8;</div>
             <p>Start training to see reward curve</p>
@@ -117,11 +116,10 @@
 
       <div class="panel chart-panel">
         <h2 class="section-title">Win Rate (%)</h2>
-        @if (metrics.length) {
-          <div class="chart-container">
-            <canvas #winCanvas></canvas>
-          </div>
-        } @else {
+        <div class="chart-container" [style.display]="metrics.length ? 'block' : 'none'">
+          <canvas #winCanvas></canvas>
+        </div>
+        @if (!metrics.length) {
           <div class="chart-placeholder">
             <div class="placeholder-icon">&#x1F3C6;</div>
             <p>Win rate will appear as training progresses</p>
