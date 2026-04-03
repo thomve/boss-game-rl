@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import type { Chart as ChartJS } from 'chart.js';
@@ -8,7 +9,7 @@ import { TrainingService, TrainingMetric } from '../services/training.service';
 
 @Component({
     selector: 'app-training',
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, FormsModule, RouterLink],
     templateUrl: './training.component.html',
     styleUrls: ['./training.component.scss']
 })
@@ -20,6 +21,18 @@ export class TrainingComponent implements OnInit, OnDestroy, AfterViewInit {
   status = 'idle';
   selectedEpisodes = 800;
   episodeOptions = [100, 200, 500, 800];
+
+  hiddenLayers = 2;
+  neuronsPerLayer = 128;
+  activation = 'relu';
+  layerOptions = [1, 2, 3, 4, 5];
+  neuronOptions = [32, 64, 128, 256, 512];
+  activationOptions = [
+    { value: 'relu', label: 'ReLU' },
+    { value: 'leaky_relu', label: 'Leaky ReLU' },
+    { value: 'tanh', label: 'Tanh' },
+    { value: 'sigmoid', label: 'Sigmoid' },
+  ];
 
   latest: TrainingMetric | null = null;
   metrics: TrainingMetric[] = [];
@@ -56,7 +69,11 @@ export class TrainingComponent implements OnInit, OnDestroy, AfterViewInit {
 
   startTraining(): void {
     this.trainingService.clearMetrics();
-    this.ws.startTraining(this.selectedEpisodes);
+    this.ws.startTraining(this.selectedEpisodes, {
+      hiddenLayers: this.hiddenLayers,
+      neuronsPerLayer: this.neuronsPerLayer,
+      activation: this.activation,
+    });
   }
 
   stopTraining(): void {

@@ -22,11 +22,14 @@ class TrainingManager {
    * @param {string} outputPath
    * @param {Set<WebSocket>} wsClients
    * @param {Function} onComplete - called with final data when done
+   * @param {object} modelConfig - { hiddenLayers, neuronsPerLayer, activation }
    */
-  startTraining(episodes = 800, outputPath = DEFAULT_OUTPUT, wsClients = new Set(), onComplete = null) {
+  startTraining(episodes = 800, outputPath = DEFAULT_OUTPUT, wsClients = new Set(), onComplete = null, modelConfig = {}) {
     if (this._isTraining) {
       return { success: false, message: 'Training already in progress' };
     }
+
+    const { hiddenLayers = 2, neuronsPerLayer = 128, activation = 'relu' } = modelConfig;
 
     // Try python, then python3
     const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
@@ -36,6 +39,9 @@ class TrainingManager {
       SCRIPT_PATH,
       '--episodes', String(episodes),
       '--output', outputPath,
+      '--hidden-layers', String(hiddenLayers),
+      '--neurons-per-layer', String(neuronsPerLayer),
+      '--activation', activation,
     ], {
       cwd: path.dirname(SCRIPT_PATH),
       stdio: ['ignore', 'pipe', 'pipe'],

@@ -10,24 +10,55 @@ import numpy as np
 from collections import deque
 
 
+ACTIVATIONS = ('relu', 'tanh', 'sigmoid', 'leaky_relu')
+
+
 class NeuralNetwork:
     """
     Simple feedforward neural network using only NumPy.
-    Architecture: input -> hidden1 (ReLU) -> hidden2 (ReLU) -> output
+    Architecture: input -> hidden layers (configurable activation) -> output (linear)
     """
 
-    def __init__(self, input_size: int, hidden_sizes: list, output_size: int, lr: float = 0.001):
+    def __init__(self, input_size: int, hidden_sizes: list, output_size: int,
+                 lr: float = 0.001, activation: str = 'relu'):
         self.lr = lr
+        self.activation = activation if activation in ACTIVATIONS else 'relu'
         self.layers = []
         self.biases = []
 
         sizes = [input_size] + hidden_sizes + [output_size]
         for i in range(len(sizes) - 1):
-            # He initialization
-            w = np.random.randn(sizes[i], sizes[i + 1]) * np.sqrt(2.0 / sizes[i])
+            # He initialization for relu/leaky_relu, Xavier for tanh/sigmoid
+            if self.activation in ('relu', 'leaky_relu'):
+                w = np.random.randn(sizes[i], sizes[i + 1]) * np.sqrt(2.0 / sizes[i])
+            else:
+                w = np.random.randn(sizes[i], sizes[i + 1]) * np.sqrt(1.0 / sizes[i])
             b = np.zeros((1, sizes[i + 1]))
             self.layers.append(w)
             self.biases.append(b)
+
+    def _activate(self, z: np.ndarray) -> np.ndarray:
+        if self.activation == 'relu':
+            return np.maximum(0, z)
+        elif self.activation == 'leaky_relu':
+            return np.where(z > 0, z, 0.01 * z)
+        elif self.activation == 'tanh':
+            return np.tanh(z)
+        elif self.activation == 'sigmoid':
+            return 1.0 / (1.0 + np.exp(-np.clip(z, -500, 500)))
+        return np.maximum(0, z)  # fallback relu
+
+    def _activate_grad(self, a: np.ndarray) -> np.ndarray:
+        """Derivative of activation given post-activation values."""
+        if self.activation == 'relu':
+            return (a > 0).astype(float)
+        elif self.activation == 'leaky_relu':
+            return np.where(a > 0, 1.0, 0.01)
+        elif self.activation == 'tanh':
+            return 1.0 - a ** 2
+        elif self.activation == 'sigmoid':
+            return a * (1.0 - a)
+        return (a > 0).astype(float)  # fallback relu
 
     def forward(self, x: np.ndarray) -> tuple:
         """Forward pass, returns (output, cache for backprop)."""
@@ -35,8 +66,8 @@ class NeuralNetwork:
         a = x
         for i, (w, b) in enumerate(zip(self.layers, self.biases)):
             z = a @ w + b
-            if i < len(self.layers) - 1:  # ReLU for hidden layers
-                a = np.maximum(0, z)
+            if i < len(self.layers) - 1:  # hidden layers use configured activation
+                a = self._activate(z)
             else:
                 a = z  # Linear output for Q-values
             cache.append(a)
@@ -67,8 +98,7 @@ class NeuralNetwork:
 
         for i in reversed(range(len(self.layers))):
             if i < len(self.layers) - 1:
-                # ReLU derivative
-                d_a = d_a * (cache[i + 1] > 0).astype(float)
+                d_a = d_a * self._activate_grad(cache[i + 1])
 
             d_w = cache[i].T @ d_a
             d_b = np.sum(d_a, axis=0, keepdims=True)
@@ -124,6 +154,7 @@ class DQNAgent:
         buffer_size: int = 10000,
         batch_size: int = 64,
         target_update_freq: int = 20,
+        activation: str = 'relu',
     ):
         if hidden_sizes is None:
             hidden_sizes = [128, 64]
@@ -138,8 +169,8 @@ class DQNAgent:
         self.target_update_freq = target_update_freq
 
         # Networks
-        self.q_network = NeuralNetwork(state_size, hidden_sizes, action_size, lr)
-        self.target_network = NeuralNetwork(state_size, hidden_sizes, action_size, lr)
+        self.q_network = NeuralNetwork(state_size, hidden_sizes, action_size, lr, activation)
+        self.target_network = NeuralNetwork(state_size, hidden_sizes, action_size, lr, activation)
         self.target_network.copy_weights_from(self.q_network)
 
         # Experience replay

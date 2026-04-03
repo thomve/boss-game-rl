@@ -50,10 +50,16 @@ function handleMessage(ws, rawMessage, gameManager, trainingManager, wsClients) 
 
     case 'start_training': {
       const episodes = typeof msg.episodes === 'number' ? msg.episodes : 800;
+      const validActivations = ['relu', 'tanh', 'sigmoid', 'leaky_relu'];
+      const modelConfig = {
+        hiddenLayers: typeof msg.hiddenLayers === 'number' ? Math.max(1, Math.min(msg.hiddenLayers, 5)) : 2,
+        neuronsPerLayer: typeof msg.neuronsPerLayer === 'number' ? Math.max(16, Math.min(msg.neuronsPerLayer, 512)) : 128,
+        activation: validActivations.includes(msg.activation) ? msg.activation : 'relu',
+      };
       const result = trainingManager.startTraining(episodes, undefined, wsClients, (completeData) => {
         // Reload agent after training completes
         setTimeout(() => gameManager.reloadAgent(), 500);
-      });
+      }, modelConfig);
       ws.send(JSON.stringify({ type: 'training_started', ...result, episodes }));
       break;
     }

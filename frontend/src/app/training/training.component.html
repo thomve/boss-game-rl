@@ -32,6 +32,51 @@
           </div>
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Hidden Layers</label>
+          <div class="episode-options">
+            @for (n of layerOptions; track n) {
+              <button
+                class="ep-btn"
+                [class.active]="hiddenLayers === n"
+                [disabled]="isTraining"
+                (click)="hiddenLayers = n">
+                {{ n }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Neurons per Layer</label>
+          <div class="episode-options">
+            @for (n of neuronOptions; track n) {
+              <button
+                class="ep-btn"
+                [class.active]="neuronsPerLayer === n"
+                [disabled]="isTraining"
+                (click)="neuronsPerLayer = n">
+                {{ n }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Activation Function</label>
+          <div class="episode-options">
+            @for (opt of activationOptions; track opt.value) {
+              <button
+                class="ep-btn"
+                [class.active]="activation === opt.value"
+                [disabled]="isTraining"
+                (click)="activation = opt.value">
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        </div>
+
         @if (!isTraining) {
           <button class="btn btn-gold start-btn" (click)="startTraining()">
             &#x25B6; Start Training

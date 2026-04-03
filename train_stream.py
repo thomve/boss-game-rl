@@ -19,13 +19,15 @@ from environment import BossFightEnv
 from agent import DQNAgent
 
 
-def train(episodes: int = 800, output_path: str = "trained_agent.json"):
+def train(episodes: int = 800, output_path: str = "trained_agent.json",
+          hidden_layers: int = 2, neurons_per_layer: int = 128, activation: str = "relu"):
     try:
         env = BossFightEnv()
+        hidden_sizes = [neurons_per_layer] * hidden_layers
         agent = DQNAgent(
             state_size=env.n_observations,
             action_size=env.n_actions,
-            hidden_sizes=[256, 128],
+            hidden_sizes=hidden_sizes,
             lr=0.0008,
             gamma=0.97,
             epsilon_start=1.0,
@@ -34,6 +36,7 @@ def train(episodes: int = 800, output_path: str = "trained_agent.json"):
             buffer_size=30000,
             batch_size=128,
             target_update_freq=30,
+            activation=activation,
         )
 
         rewards_window = deque(maxlen=100)
@@ -99,6 +102,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train DQN agent with streaming output")
     parser.add_argument("--episodes", type=int, default=800, help="Number of training episodes")
     parser.add_argument("--output", type=str, default="trained_agent.json", help="Output path for weights")
+    parser.add_argument("--hidden-layers", type=int, default=2, help="Number of hidden layers")
+    parser.add_argument("--neurons-per-layer", type=int, default=128, help="Neurons per hidden layer")
+    parser.add_argument("--activation", type=str, default="relu",
+                        choices=["relu", "tanh", "sigmoid", "leaky_relu"],
+                        help="Activation function for hidden layers")
     args = parser.parse_args()
 
-    train(episodes=args.episodes, output_path=args.output)
+    train(
+        episodes=args.episodes,
+        output_path=args.output,
+        hidden_layers=args.hidden_layers,
+        neurons_per_layer=args.neurons_per_layer,
+        activation=args.activation,
+    )
