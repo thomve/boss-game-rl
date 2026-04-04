@@ -33,6 +33,22 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label">Algorithm</label>
+          <div class="algo-options">
+            @for (opt of algorithmOptions; track opt.value) {
+              <button
+                class="algo-btn"
+                [class.active]="algorithm === opt.value"
+                [disabled]="isTraining"
+                (click)="algorithm = opt.value"
+                [title]="opt.desc">
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
           <label class="form-label">Hidden Layers</label>
           <div class="episode-options">
             @for (n of layerOptions; track n) {

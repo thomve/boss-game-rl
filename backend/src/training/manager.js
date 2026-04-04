@@ -29,7 +29,7 @@ class TrainingManager {
       return { success: false, message: 'Training already in progress' };
     }
 
-    const { hiddenLayers = 2, neuronsPerLayer = 128, activation = 'relu' } = modelConfig;
+    const { hiddenLayers = 2, neuronsPerLayer = 128, activation = 'relu', algorithm = 'dqn' } = modelConfig;
 
     // Try python, then python3
     const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
@@ -42,6 +42,7 @@ class TrainingManager {
       '--hidden-layers', String(hiddenLayers),
       '--neurons-per-layer', String(neuronsPerLayer),
       '--activation', activation,
+      '--algorithm', algorithm,
     ], {
       cwd: path.dirname(SCRIPT_PATH),
       stdio: ['ignore', 'pipe', 'pipe'],

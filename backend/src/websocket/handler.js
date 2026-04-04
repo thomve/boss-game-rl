@@ -51,10 +51,12 @@ function handleMessage(ws, rawMessage, gameManager, trainingManager, wsClients) 
     case 'start_training': {
       const episodes = typeof msg.episodes === 'number' ? msg.episodes : 800;
       const validActivations = ['relu', 'tanh', 'sigmoid', 'leaky_relu'];
+      const validAlgorithms  = ['dqn', 'double_dqn', 'dueling_dqn', 'per_dqn'];
       const modelConfig = {
-        hiddenLayers: typeof msg.hiddenLayers === 'number' ? Math.max(1, Math.min(msg.hiddenLayers, 5)) : 2,
+        hiddenLayers:   typeof msg.hiddenLayers === 'number' ? Math.max(1, Math.min(msg.hiddenLayers, 5)) : 2,
         neuronsPerLayer: typeof msg.neuronsPerLayer === 'number' ? Math.max(16, Math.min(msg.neuronsPerLayer, 512)) : 128,
         activation: validActivations.includes(msg.activation) ? msg.activation : 'relu',
+        algorithm:  validAlgorithms.includes(msg.algorithm)   ? msg.algorithm  : 'dqn',
       };
       const result = trainingManager.startTraining(episodes, undefined, wsClients, (completeData) => {
         // Reload agent after training completes

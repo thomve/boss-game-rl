@@ -20,7 +20,8 @@ from agent import DQNAgent
 
 
 def train(episodes: int = 800, output_path: str = "trained_agent.json",
-          hidden_layers: int = 2, neurons_per_layer: int = 128, activation: str = "relu"):
+          hidden_layers: int = 2, neurons_per_layer: int = 128,
+          activation: str = "relu", algorithm: str = "dqn"):
     try:
         env = BossFightEnv()
         hidden_sizes = [neurons_per_layer] * hidden_layers
@@ -37,6 +38,7 @@ def train(episodes: int = 800, output_path: str = "trained_agent.json",
             batch_size=128,
             target_update_freq=30,
             activation=activation,
+            algorithm=algorithm,
         )
 
         rewards_window = deque(maxlen=100)
@@ -107,6 +109,9 @@ if __name__ == "__main__":
     parser.add_argument("--activation", type=str, default="relu",
                         choices=["relu", "tanh", "sigmoid", "leaky_relu"],
                         help="Activation function for hidden layers")
+    parser.add_argument("--algorithm", type=str, default="dqn",
+                        choices=["dqn", "double_dqn", "dueling_dqn", "per_dqn"],
+                        help="RL algorithm")
     args = parser.parse_args()
 
     train(
@@ -115,4 +120,5 @@ if __name__ == "__main__":
         hidden_layers=args.hidden_layers,
         neurons_per_layer=args.neurons_per_layer,
         activation=args.activation,
+        algorithm=args.algorithm,
     )

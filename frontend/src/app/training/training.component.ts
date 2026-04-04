@@ -25,13 +25,20 @@ export class TrainingComponent implements OnInit, OnDestroy, AfterViewInit {
   hiddenLayers = 2;
   neuronsPerLayer = 128;
   activation = 'relu';
+  algorithm = 'dqn';
   layerOptions = [1, 2, 3, 4, 5];
   neuronOptions = [32, 64, 128, 256, 512];
   activationOptions = [
-    { value: 'relu', label: 'ReLU' },
+    { value: 'relu',       label: 'ReLU' },
     { value: 'leaky_relu', label: 'Leaky ReLU' },
-    { value: 'tanh', label: 'Tanh' },
-    { value: 'sigmoid', label: 'Sigmoid' },
+    { value: 'tanh',       label: 'Tanh' },
+    { value: 'sigmoid',    label: 'Sigmoid' },
+  ];
+  algorithmOptions = [
+    { value: 'dqn',         label: 'DQN',         desc: 'Vanilla Deep Q-Network' },
+    { value: 'double_dqn',  label: 'Double DQN',  desc: 'Reduces overestimation bias' },
+    { value: 'dueling_dqn', label: 'Dueling DQN', desc: 'Separate value + advantage streams' },
+    { value: 'per_dqn',     label: 'PER-DQN',     desc: 'Prioritized Experience Replay' },
   ];
 
   latest: TrainingMetric | null = null;
@@ -73,6 +80,7 @@ export class TrainingComponent implements OnInit, OnDestroy, AfterViewInit {
       hiddenLayers: this.hiddenLayers,
       neuronsPerLayer: this.neuronsPerLayer,
       activation: this.activation,
+      algorithm: this.algorithm,
     });
   }
 

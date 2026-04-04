@@ -89,7 +89,7 @@ export class WebsocketService implements OnDestroy {
     this.send({ type: 'agent_step' });
   }
 
-  startTraining(episodes: number, modelConfig?: { hiddenLayers: number; neuronsPerLayer: number; activation: string }): void {
+  startTraining(episodes: number, modelConfig?: { hiddenLayers: number; neuronsPerLayer: number; activation: string; algorithm: string }): void {
     this.send({ type: 'start_training', episodes, ...modelConfig });
   }
 
