@@ -243,6 +243,17 @@ h1, h2, h3, .fantasy-title {
       transform: translateY(-1px);
     }
   }
+
+  &.btn-duel {
+    background: linear-gradient(135deg, #7a2020, #d24141);
+    border-color: var(--red);
+    color: #fff;
+
+    &:hover {
+      box-shadow: 0 0 20px rgba(210, 65, 65, 0.4);
+      transform: translateY(-1px);
+    }
+  }
 }
 
 /* ─── Animations ────────────────────────────────────────────────────────── */

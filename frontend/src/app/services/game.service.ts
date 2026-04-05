@@ -36,7 +36,8 @@ export interface BossState {
   mana: number;
   maxMana: number;
   effects: EffectState[];
-  abilities: { name: string; currentCooldown: number; available: boolean }[];
+  // Full ability info in duel mode; minimal info in boss mode
+  abilities: AbilityState[];
 }
 
 export interface GameState {
@@ -49,7 +50,8 @@ export interface GameState {
   boss: BossState;
   qValues: number[] | null;
   hasAgent: boolean;
-  mode: 'watch' | 'play';
+  isDuel: boolean;
+  mode: 'watch' | 'play' | 'duel';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -82,6 +84,10 @@ export class GameService implements OnDestroy {
 
   isPlayMode(): boolean {
     return this._state$.getValue()?.mode === 'play';
+  }
+
+  isDuelMode(): boolean {
+    return this._state$.getValue()?.mode === 'duel';
   }
 
   ngOnDestroy(): void {

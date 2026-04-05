@@ -5,8 +5,11 @@
     <a routerLink="/" class="back-btn">&#x2190; Home</a>
     <div class="game-title">
       <span class="glow-gold">BOSS FIGHT</span>
-      <span class="mode-badge" [class.mode-watch]="mode==='watch'" [class.mode-play]="mode==='play'">
-        {{ mode === 'watch' ? 'Watch' : 'Play' }} Mode
+      <span class="mode-badge"
+        [class.mode-watch]="mode==='watch'"
+        [class.mode-play]="mode==='play'"
+        [class.mode-duel]="mode==='duel'">
+        {{ mode === 'watch' ? 'Watch' : mode === 'duel' ? 'Duel' : 'Play' }} Mode
       </span>
     </div>
 
@@ -25,7 +28,9 @@
   <!-- Result Overlay -->
   @if (state?.done) {
     <div class="result-overlay">
-      <div class="result-card" [class.result-win]="state?.winner==='player'" [class.result-lose]="state?.winner!=='player'">
+      <div class="result-card"
+        [class.result-win]="state?.winner==='player'"
+        [class.result-lose]="state?.winner!=='player'">
         <div class="result-icon">{{ state?.winner === 'player' ? '&#x1F3C6;' : '&#x1F480;' }}</div>
         <h2>{{ state?.winner === 'player' ? 'VICTORY!' : 'DEFEATED' }}</h2>
         <p>Battle ended on turn {{ state?.turn }}</p>
@@ -46,24 +51,31 @@
           [watchMode]="mode === 'watch'">
         </app-fighter-panel>
       </div>
+
       <!-- Center: Log + Q-Chart -->
       <div class="center-panel">
-        <!-- Q Chart (watch mode) -->
         @if (mode === 'watch' && state.hasAgent) {
           <div class="panel q-chart-panel">
             <app-q-chart [qValues]="state.qValues" [actionMask]="getActionMask()"></app-q-chart>
           </div>
         }
-        <!-- Combat Log -->
+        @if (mode === 'duel') {
+          <div class="panel duel-notice">
+            <span class="duel-vs">&#x2694; YOU vs AGENT &#x2694;</span>
+            <span class="duel-sub">Both fighters have equal stats. Good luck!</span>
+          </div>
+        }
         <div class="panel log-panel">
           <app-combat-log [logs]="state.log"></app-combat-log>
         </div>
       </div>
-      <!-- Right: Boss Panel -->
+
+      <!-- Right: Boss / Agent Panel -->
       <div class="panel right-panel">
         <app-fighter-panel
-          [fighter]="getBossAsFighter(state.boss)"
-          [isPlayer]="false">
+          [fighter]="getAgentAsFighter()"
+          [isPlayer]="false"
+          [isDuel]="mode === 'duel'">
         </app-fighter-panel>
       </div>
     </div>
@@ -83,11 +95,16 @@
       <!-- Mode Selector -->
       <div class="control-group">
         <button class="btn" [class.btn-gold]="mode==='watch'" [class.btn-outline]="mode!=='watch'"
-        (click)="setMode('watch')">Watch Agent</button>
+          (click)="setMode('watch')">Watch Agent</button>
         <button class="btn" [class.btn-blue]="mode==='play'" [class.btn-outline]="mode!=='play'"
-        (click)="setMode('play')">Play Yourself</button>
+          (click)="setMode('play')">Play Yourself</button>
+        <button class="btn" [class.btn-duel]="mode==='duel'" [class.btn-outline]="mode!=='duel'"
+          [disabled]="!state.hasAgent"
+          [title]="!state.hasAgent ? 'Train an agent first' : 'Challenge the trained agent'"
+          (click)="setMode('duel')">&#x2694; Duel Agent</button>
       </div>
-      <!-- Watch Mode: Agent controls -->
+
+      <!-- Watch Mode controls -->
       @if (mode === 'watch') {
         <div class="control-group">
           <button class="btn btn-gold" (click)="agentStep()" [disabled]="state.done || !state.hasAgent || isThinking">
@@ -102,18 +119,19 @@
           <div class="control-group speed-group">
             <span class="ctrl-label">Speed</span>
             <button class="btn btn-outline btn-sm" [class.active]="autoPlaySpeed===1200" (click)="setSpeed(1200)">Slow</button>
-            <button class="btn btn-outline btn-sm" [class.active]="autoPlaySpeed===700" (click)="setSpeed(700)">Normal</button>
-            <button class="btn btn-outline btn-sm" [class.active]="autoPlaySpeed===200" (click)="setSpeed(200)">Fast</button>
+            <button class="btn btn-outline btn-sm" [class.active]="autoPlaySpeed===700"  (click)="setSpeed(700)">Normal</button>
+            <button class="btn btn-outline btn-sm" [class.active]="autoPlaySpeed===200"  (click)="setSpeed(200)">Fast</button>
           </div>
         }
         @if (!state.hasAgent) {
           <div class="no-agent-warn">
-            No trained agent loaded. Go to <a routerLink="/training">Training</a> to train one.
+            No trained agent. Go to <a routerLink="/training">Training</a> to train one.
           </div>
         }
       }
-      <!-- Play Mode: Action buttons -->
-      @if (mode === 'play') {
+
+      <!-- Play Mode or Duel Mode: ability buttons -->
+      @if (mode === 'play' || mode === 'duel') {
         <div class="action-buttons">
           @for (ab of state.player.abilities; track ab; let i = $index) {
             <button
@@ -133,6 +151,7 @@
           }
         </div>
       }
+
       <!-- Reset -->
       <div class="control-group">
         <button class="btn btn-outline" (click)="resetGame()">&#x21BA; Reset</button>

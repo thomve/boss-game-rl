@@ -13,6 +13,7 @@ export class FighterPanelComponent implements OnChanges {
   @Input() isPlayer = true;
   @Input() qValues: number[] | null = null;
   @Input() watchMode = false;
+  @Input() isDuel = false;
 
   hpPercent = 100;
   manaPercent = 100;

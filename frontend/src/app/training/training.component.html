@@ -155,7 +155,10 @@
           <div class="complete-icon">&#x2705;</div>
           <h3>Training Complete!</h3>
           <p>Agent saved to <code>trained_agent.json</code></p>
-          <a routerLink="/game" [queryParams]="{mode:'watch'}" class="btn btn-gold">Watch Agent &#x2192;</a>
+          <div class="complete-actions">
+            <a routerLink="/game" [queryParams]="{mode:'watch'}" class="btn btn-gold">Watch Agent &#x2192;</a>
+            <a routerLink="/game" [queryParams]="{mode:'duel'}" class="btn btn-duel">&#x2694; Challenge Agent</a>
+          </div>
         </div>
       }
     </div>

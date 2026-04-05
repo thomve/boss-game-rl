@@ -38,7 +38,7 @@
     </div>
   }
 
-  <!-- Abilities (player only) -->
+  <!-- Abilities: full list for player panel -->
   @if (isPlayer && fighter.abilities) {
     <div class="abilities-list">
       @for (ab of fighter.abilities; track trackByName(i, ab); let i = $index) {
@@ -64,6 +64,25 @@
               <span class="q-value" [style.color]="getQColor(i)">{{ qValues[i] | number:'1.2-2' }}</span>
             </div>
           }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Abilities: cooldown-only view for agent panel in duel mode -->
+  @if (!isPlayer && isDuel && fighter.abilities) {
+    <div class="abilities-list opponent-abilities">
+      @for (ab of fighter.abilities; track trackByName(i, ab); let i = $index) {
+        <div
+          class="ability-item"
+          [class.ability-available]="ab.available"
+          [class.ability-disabled]="!ab.available">
+          <div class="ability-header">
+            <span class="ability-name">{{ ab.name }}</span>
+            @if (ab.currentCooldown > 0) {
+              <span class="ability-cd">CD: {{ ab.currentCooldown }}</span>
+            }
+          </div>
         </div>
       }
     </div>

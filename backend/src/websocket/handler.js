@@ -28,7 +28,8 @@ function handleMessage(ws, rawMessage, gameManager, trainingManager, wsClients) 
     }
 
     case 'game_mode': {
-      const mode = msg.mode === 'play' ? 'play' : 'watch';
+      const validModes = ['watch', 'play', 'duel'];
+      const mode = validModes.includes(msg.mode) ? msg.mode : 'watch';
       gameManager.setMode(mode);
       ws.send(JSON.stringify({ type: 'mode_changed', mode }));
       break;

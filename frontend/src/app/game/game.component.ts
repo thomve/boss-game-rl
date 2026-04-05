@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
 import { WebsocketService } from '../services/websocket.service';
-import { GameService, GameState, BossState, FighterState } from '../services/game.service';
+import { GameService, GameState, FighterState } from '../services/game.service';
 import { FighterPanelComponent } from './components/fighter-panel/fighter-panel.component';
 import { CombatLogComponent } from './components/combat-log/combat-log.component';
 import { QChartComponent } from './components/q-chart/q-chart.component';
@@ -22,7 +22,7 @@ import { QChartComponent } from './components/q-chart/q-chart.component';
 })
 export class GameComponent implements OnInit, OnDestroy {
   state: GameState | null = null;
-  mode: 'watch' | 'play' = 'watch';
+  mode: 'watch' | 'play' | 'duel' = 'watch';
   autoPlay = false;
   autoPlaySpeed = 800; // ms between steps
   isThinking = false;
@@ -37,10 +37,11 @@ export class GameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Check query param for mode
     const queryMode = this.route.snapshot.queryParamMap.get('mode');
     if (queryMode === 'play') {
       this.mode = 'play';
+    } else if (queryMode === 'duel') {
+      this.mode = 'duel';
     } else {
       this.mode = 'watch';
     }
@@ -53,7 +54,6 @@ export class GameComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Initial reset
     this.ws.resetGame();
   }
 
@@ -62,15 +62,15 @@ export class GameComponent implements OnInit, OnDestroy {
     this._stopAutoPlay();
   }
 
-  setMode(m: 'watch' | 'play'): void {
+  setMode(m: 'watch' | 'play' | 'duel'): void {
     this.mode = m;
     this.ws.setMode(m);
-    if (m === 'play') this._stopAutoPlay();
+    if (m !== 'watch') this._stopAutoPlay();
   }
 
   doAction(i: number): void {
     if (this.state?.done) return;
-    if (this.mode === 'play') {
+    if (this.mode === 'play' || this.mode === 'duel') {
       this.ws.sendAction(i);
     }
   }
@@ -132,8 +132,7 @@ export class GameComponent implements OnInit, OnDestroy {
     return (this.state.turn / this.state.maxTurns) * 100;
   }
 
-  getBossAsFighter(boss: BossState): FighterState {
-    // Cast boss to FighterState for the fighter panel (abilities won't be shown for boss)
-    return boss as unknown as FighterState;
+  getAgentAsFighter(): FighterState {
+    return this.state!.boss as unknown as FighterState;
   }
 }

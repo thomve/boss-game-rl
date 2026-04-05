@@ -67,6 +67,13 @@
 }
 
 /* ─── Abilities ─────────────────────────────────────────────────────────── */
+.opponent-abilities {
+  .ability-item.ability-available {
+    border-color: rgba(210, 65, 65, 0.2);
+    &:hover { background: rgba(255,255,255,0.04); border-color: rgba(210, 65, 65, 0.2); }
+  }
+}
+
 .abilities-list {
   display: flex;
   flex-direction: column;

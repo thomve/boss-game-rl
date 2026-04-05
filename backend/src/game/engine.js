@@ -424,4 +424,241 @@ class BossFightGame {
   }
 }
 
-module.exports = { BossFightGame, createHero, createDragon, StatusEffect, Ability, Fighter };
+// ─── Duel Factory ──────────────────────────────────────────────────────────
+function createMirrorHero(name = 'Agent') {
+  // Identical stats/abilities to the hero — fair fight
+  return new Fighter(name, 120, 60, 8, [
+    new Ability('Strike', 15, 0, 0, 0, null, 'Basic attack dealing 15 damage'),
+    new Ability('Power Slash', 30, 0, 2, 12, null, 'Heavy strike dealing 30 damage'),
+    new Ability('Heal', 0, 30, 3, 10, null, 'Restore 30 HP'),
+    new Ability('Poison Blade', 10, 0, 3, 8,
+      [StatusEffect.POISON, 3, 6],
+      'Deal 10 damage and apply 6 poison for 3 turns'),
+    new Ability('Shield Up', 0, 0, 4, 8,
+      [StatusEffect.SHIELD, 2, 0.5],
+      'Reduce incoming damage by 50% for 2 turns'),
+  ]);
+}
+
+// ─── DuelGame ───────────────────────────────────────────────────────────────
+/**
+ * Player vs Agent duel. Both sides have identical hero stats.
+ * The agent acts automatically after each player turn.
+ * Agent state is mirrored (agent's own HP = "player_hp", etc.) so the
+ * trained DQN network can be used as-is.
+ */
+class DuelGame {
+  constructor() {
+    this.MAX_TURNS = 50;
+    this.reset();
+  }
+
+  reset() {
+    this.hero       = createHero();
+    this.challenger = createMirrorHero('Agent');
+    this.turn  = 0;
+    this.done  = false;
+    this.winner = null;
+    this.log   = [];
+    return this._renderState();
+  }
+
+  // ── State for rendering (player POV) ────────────────────────────────────
+  getState() {
+    const h = this.hero;
+    const c = this.challenger;
+    return [
+      h.hp / h.maxHp,
+      h.mana / h.maxMana,
+      c.hp / c.maxHp,
+      c.mana / c.maxMana,
+      this.turn / this.MAX_TURNS,
+      ...h.abilities.map(a => a.currentCooldown / Math.max(a.cooldown, 1)),
+      ...c.abilities.map(a => a.currentCooldown / Math.max(a.cooldown, 1)),
+      h.hasEffect(StatusEffect.POISON)  ? 1 : 0,
+      h.hasEffect(StatusEffect.SHIELD)  ? 1 : 0,
+      h.hasEffect(StatusEffect.STUNNED) ? 1 : 0,
+      h.hasEffect(StatusEffect.REGEN)   ? 1 : 0,
+      c.hasEffect(StatusEffect.POISON)  ? 1 : 0,
+      c.hasEffect(StatusEffect.ENRAGED) ? 1 : 0,
+    ];
+  }
+
+  // ── State from agent's perspective (mirrored) — fed into DQN ────────────
+  getAgentState() {
+    const h = this.hero;        // human  → "boss"   from agent POV
+    const c = this.challenger;  // agent  → "player" from agent POV
+    return [
+      c.hp / c.maxHp,
+      c.mana / c.maxMana,
+      h.hp / h.maxHp,
+      h.mana / h.maxMana,
+      this.turn / this.MAX_TURNS,
+      ...c.abilities.map(a => a.currentCooldown / Math.max(a.cooldown, 1)),
+      ...h.abilities.map(a => a.currentCooldown / Math.max(a.cooldown, 1)),
+      c.hasEffect(StatusEffect.POISON)  ? 1 : 0,
+      c.hasEffect(StatusEffect.SHIELD)  ? 1 : 0,
+      c.hasEffect(StatusEffect.STUNNED) ? 1 : 0,
+      c.hasEffect(StatusEffect.REGEN)   ? 1 : 0,
+      h.hasEffect(StatusEffect.POISON)  ? 1 : 0,
+      h.hasEffect(StatusEffect.ENRAGED) ? 1 : 0,
+    ];
+  }
+
+  getActionMask() {
+    if (this.hero.hasEffect(StatusEffect.STUNNED)) return [0, 0, 0, 0, 0];
+    return this.hero.abilities.map(a => a.isAvailable(this.hero.mana) ? 1 : 0);
+  }
+
+  getAgentActionMask() {
+    if (this.challenger.hasEffect(StatusEffect.STUNNED)) return [0, 0, 0, 0, 0];
+    return this.challenger.abilities.map(a => a.isAvailable(this.challenger.mana) ? 1 : 0);
+  }
+
+  // ── Full turn: player acts, then agent acts ──────────────────────────────
+  step(playerAction, agentAction) {
+    this.turn += 1;
+    const turnLog = [`\n=== Turn ${this.turn} ===`];
+
+    // ── Player Phase ───────────────────────────────────────────────────────
+    if (this.hero.hasEffect(StatusEffect.STUNNED)) {
+      turnLog.push(`  ${this.hero.name} is STUNNED and cannot act!`);
+    } else {
+      const valid = this.hero.abilities
+        .map((a, i) => a.isAvailable(this.hero.mana) ? i : -1)
+        .filter(i => i >= 0);
+      const action = valid.includes(playerAction) ? playerAction : (valid[0] ?? 0);
+      turnLog.push(...this._executeAbility(this.hero, this.challenger, this.hero.abilities[action]));
+    }
+
+    if (!this.challenger.isAlive()) {
+      this.done = true; this.winner = 'player';
+      turnLog.push(`\n  *** ${this.challenger.name} has been DEFEATED! ***`);
+      this.log.push(...turnLog);
+      return { state: this.getState(), done: true, info: { winner: 'player', turn: this.turn } };
+    }
+
+    // ── Agent Phase ────────────────────────────────────────────────────────
+    if (this.challenger.hasEffect(StatusEffect.STUNNED)) {
+      turnLog.push(`  ${this.challenger.name} is STUNNED and cannot act!`);
+    } else {
+      const valid = this.challenger.abilities
+        .map((a, i) => a.isAvailable(this.challenger.mana) ? i : -1)
+        .filter(i => i >= 0);
+      const action = valid.includes(agentAction) ? agentAction : (valid[0] ?? 0);
+      turnLog.push(...this._executeAbility(this.challenger, this.hero, this.challenger.abilities[action]));
+    }
+
+    if (!this.hero.isAlive()) {
+      this.done = true; this.winner = 'boss';
+      turnLog.push(`\n  *** ${this.hero.name} has been DEFEATED! ***`);
+      this.log.push(...turnLog);
+      return { state: this.getState(), done: true, info: { winner: 'boss', turn: this.turn } };
+    }
+
+    // ── End of Turn ────────────────────────────────────────────────────────
+    turnLog.push('  -- Effects --');
+    turnLog.push(...this.hero.tickEffects());
+    turnLog.push(...this.challenger.tickEffects());
+
+    if (!this.challenger.isAlive()) {
+      this.done = true; this.winner = 'player';
+      turnLog.push(`\n  *** ${this.challenger.name} succumbs to effects! ***`);
+    } else if (!this.hero.isAlive()) {
+      this.done = true; this.winner = 'boss';
+      turnLog.push(`\n  *** ${this.hero.name} succumbs to effects! ***`);
+    }
+
+    this.hero.tickCooldowns();
+    this.challenger.tickCooldowns();
+    this.hero.applyManaRegen();
+    this.challenger.applyManaRegen();
+
+    if (this.turn >= this.MAX_TURNS && !this.done) {
+      this.done = true; this.winner = 'boss';
+      turnLog.push("\n  *** Time's up! The Hero retreats... ***");
+    }
+
+    this.log.push(...turnLog);
+    return { state: this.getState(), done: this.done, info: { winner: this.winner, turn: this.turn } };
+  }
+
+  _executeAbility(user, target, ability) {
+    const logs = [`  ${user.name} uses ${ability.name}!`];
+    user.mana -= ability.manaCost;
+
+    let damage = ability.damage;
+    if (user.hasEffect(StatusEffect.ENRAGED) && damage > 0) {
+      const enrage = user.activeEffects.find(e => e.effect === StatusEffect.ENRAGED);
+      damage *= enrage.potency;
+      logs.push(`  ENRAGED! Damage boosted to ${Math.round(damage)}`);
+    }
+    if (target.hasEffect(StatusEffect.WEAKENED) && damage > 0) damage *= 1.3;
+
+    if (damage > 0) {
+      target.applyDamage(damage);
+      logs.push(`  ${target.name} takes ${Math.round(damage)} damage (${Math.round(target.hp)} HP remaining)`);
+    }
+    if (ability.heal > 0) {
+      user.applyHeal(ability.heal);
+      logs.push(`  ${user.name} heals for ${ability.heal} (${Math.round(user.hp)} HP)`);
+    }
+    if (ability.appliesEffect) {
+      const [effect, duration, potency] = ability.appliesEffect;
+      const selfEffects = [StatusEffect.SHIELD, StatusEffect.ENRAGED, StatusEffect.REGEN];
+      if (selfEffects.includes(effect)) {
+        user.addEffect(effect, duration, potency);
+        logs.push(`  ${user.name} gains ${effect} for ${duration} turns`);
+      } else {
+        target.addEffect(effect, duration, potency);
+        logs.push(`  ${target.name} is afflicted with ${effect} for ${duration} turns`);
+      }
+    }
+    ability.use();
+    return logs;
+  }
+
+  _renderState() { return this.getState(); }
+
+  render() {
+    const abState = (fighter) => fighter.abilities.map(a => ({
+      name: a.name,
+      damage: a.damage,
+      heal: a.heal,
+      manaCost: a.manaCost,
+      cooldown: a.cooldown,
+      currentCooldown: a.currentCooldown,
+      available: a.isAvailable(fighter.mana),
+      description: a.description,
+    }));
+
+    return {
+      turn: this.turn,
+      maxTurns: this.MAX_TURNS,
+      done: this.done,
+      winner: this.winner,
+      log: this.log.slice(-30),
+      isDuel: true,
+      player: {
+        name: this.hero.name,
+        hp: Math.round(this.hero.hp),
+        maxHp: this.hero.maxHp,
+        mana: Math.round(this.hero.mana),
+        maxMana: this.hero.maxMana,
+        effects: this.hero.activeEffects.map(e => ({ name: e.effect, duration: e.duration })),
+        abilities: abState(this.hero),
+      },
+      boss: {
+        name: this.challenger.name,
+        hp: Math.round(this.challenger.hp),
+        maxHp: this.challenger.maxHp,
+        mana: Math.round(this.challenger.mana),
+        maxMana: this.challenger.maxMana,
+        effects: this.challenger.activeEffects.map(e => ({ name: e.effect, duration: e.duration })),
+        abilities: abState(this.challenger),
+      },
+    };
+  }
+}
+
+module.exports = { BossFightGame, DuelGame, createHero, createDragon, createMirrorHero, StatusEffect, Ability, Fighter };

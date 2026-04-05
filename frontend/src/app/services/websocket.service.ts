@@ -81,7 +81,7 @@ export class WebsocketService implements OnDestroy {
     this.send({ type: 'game_reset' });
   }
 
-  setMode(mode: 'watch' | 'play'): void {
+  setMode(mode: 'watch' | 'play' | 'duel'): void {
     this.send({ type: 'game_mode', mode });
   }
 
