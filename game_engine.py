@@ -162,8 +162,8 @@ def create_player() -> Fighter:
     return player
 
 
-def create_boss() -> Fighter:
-    """Create the boss enemy."""
+def create_dragon() -> Fighter:
+    """Create the Dragon Lord boss."""
     boss = Fighter(
         name="Dragon Lord",
         max_hp=180,
@@ -219,6 +219,70 @@ def create_boss() -> Fighter:
     return boss
 
 
+def create_shadow_witch() -> Fighter:
+    """Create the Shadow Witch boss — a fragile spellcaster with sustain and burst."""
+    boss = Fighter(
+        name="Shadow Witch",
+        max_hp=150,
+        hp=150,
+        max_mana=80,
+        mana=80,
+        mana_regen=10,
+    )
+    boss.abilities = [
+        Ability(
+            name="Shadow Bolt",
+            damage=12,
+            heal=0,
+            cooldown=0,
+            mana_cost=0,
+            description="Basic dark magic attack",
+        ),
+        Ability(
+            name="Soul Drain",
+            damage=18,
+            heal=15,
+            cooldown=3,
+            mana_cost=20,
+            description="Drain 18 HP from target and heal self for 15",
+        ),
+        Ability(
+            name="Hex Curse",
+            damage=8,
+            heal=0,
+            cooldown=2,
+            mana_cost=12,
+            applies_effect=(StatusEffect.WEAKENED, 2, 0),
+            description="Deal 8 damage and weaken target for 2 turns",
+        ),
+        Ability(
+            name="Death Coil",
+            damage=30,
+            heal=0,
+            cooldown=4,
+            mana_cost=25,
+            description="Unleash a devastating dark bolt for 30 damage",
+        ),
+        Ability(
+            name="Phantom Shroud",
+            damage=0,
+            heal=0,
+            cooldown=5,
+            mana_cost=18,
+            applies_effect=(StatusEffect.SHIELD, 2, 0.5),
+            description="Shroud self in shadows, reducing damage by 50% for 2 turns",
+        ),
+    ]
+    return boss
+
+
+def create_boss(boss_type: str = 'dragon') -> Fighter:
+    """Create a boss by type ('dragon' or 'witch')."""
+    if boss_type == 'witch':
+        return create_shadow_witch()
+    return create_dragon()
+
+
 class BossFightGame:
     """
     Main game controller for the boss fight.
@@ -227,12 +291,13 @@ class BossFightGame:
 
     MAX_TURNS = 50
 
-    def __init__(self):
+    def __init__(self, boss_type: str = 'dragon'):
+        self.boss_type = boss_type
         self.reset()
 
     def reset(self):
         self.player = create_player()
-        self.boss = create_boss()
+        self.boss = create_boss(self.boss_type)
         self.turn = 0
         self.done = False
         self.winner = None
@@ -287,7 +352,13 @@ class BossFightGame:
         ]
 
     def _boss_choose_action(self) -> int:
-        """Simple boss AI with weighted priorities."""
+        """Route to the appropriate boss AI."""
+        if self.boss_type == 'witch':
+            return self._shadow_witch_ai()
+        return self._dragon_ai()
+
+    def _dragon_ai(self) -> int:
+        """Dragon Lord AI with weighted priorities."""
         if self.boss.has_effect(StatusEffect.STUNNED):
             return -1  # Skip
 
@@ -298,7 +369,6 @@ class BossFightGame:
         if not available:
             return 0  # Fallback to basic attack
 
-        # Priority logic
         # Heal if low HP
         if self.boss.hp < self.boss.max_hp * 0.3 and 3 in available:
             return 3  # Dark Heal
@@ -315,6 +385,43 @@ class BossFightGame:
         # Tail Slam
         if 2 in available and random.random() < 0.5:
             return 2
+
+        # Default: random available
+        return random.choice(available)
+
+    def _shadow_witch_ai(self) -> int:
+        """Shadow Witch AI — sustain, curse, then burst."""
+        if self.boss.has_effect(StatusEffect.STUNNED):
+            return -1  # Skip
+
+        available = [
+            i for i, a in enumerate(self.boss.abilities)
+            if a.is_available(self.boss.mana)
+        ]
+        if not available:
+            return 0  # Fallback to Shadow Bolt
+
+        # Soul Drain if low HP (heal + damage)
+        if self.boss.hp < self.boss.max_hp * 0.4 and 1 in available:
+            return 1  # Soul Drain
+
+        # Phantom Shroud if not already shielded
+        if 4 in available and not self.boss.has_effect(StatusEffect.SHIELD):
+            if random.random() < 0.35:
+                return 4
+
+        # Death Coil high-damage nuke
+        if 3 in available and random.random() < 0.65:
+            return 3
+
+        # Hex Curse — weaken player
+        if 2 in available and not self.player.has_effect(StatusEffect.WEAKENED):
+            if random.random() < 0.55:
+                return 2
+
+        # Soul Drain for sustain damage
+        if 1 in available and random.random() < 0.40:
+            return 1
 
         # Default: random available
         return random.choice(available)
@@ -467,7 +574,7 @@ def play_interactive():
     state = game.reset()
 
     print("=" * 50)
-    print("  BOSS FIGHT: Hero vs Dragon Lord")
+    print(f"  BOSS FIGHT: Hero vs {game.boss.name}")
     print("=" * 50)
 
     while not game.done:

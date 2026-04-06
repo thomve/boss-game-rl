@@ -104,6 +104,21 @@
           (click)="setMode('duel')">&#x2694; Duel Agent</button>
       </div>
 
+      <!-- Boss Selector (not available in duel mode) -->
+      @if (mode !== 'duel') {
+        <div class="control-group">
+          <span class="ctrl-label">Boss</span>
+          <button class="btn btn-sm"
+            [class.btn-dragon]="bossType==='dragon'"
+            [class.btn-outline]="bossType!=='dragon'"
+            (click)="setBossType('dragon')">&#x1F409; Dragon Lord</button>
+          <button class="btn btn-sm"
+            [class.btn-witch]="bossType==='witch'"
+            [class.btn-outline]="bossType!=='witch'"
+            (click)="setBossType('witch')">&#x1F9D9; Shadow Witch</button>
+        </div>
+      }
+
       <!-- Watch Mode controls -->
       @if (mode === 'watch') {
         <div class="control-group">

@@ -35,6 +35,14 @@ function handleMessage(ws, rawMessage, gameManager, trainingManager, wsClients) 
       break;
     }
 
+    case 'game_boss': {
+      const validBosses = ['dragon', 'witch'];
+      const bossType = validBosses.includes(msg.bossType) ? msg.bossType : 'dragon';
+      const state = gameManager.setBoss(bossType);
+      ws.send(JSON.stringify({ type: 'game_state', state }));
+      break;
+    }
+
     case 'agent_step': {
       const state = gameManager.agentStep();
       ws.send(JSON.stringify({ type: 'game_state', state }));

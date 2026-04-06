@@ -52,6 +52,7 @@ export interface GameState {
   hasAgent: boolean;
   isDuel: boolean;
   mode: 'watch' | 'play' | 'duel';
+  bossType: 'dragon' | 'witch';
 }
 
 @Injectable({ providedIn: 'root' })

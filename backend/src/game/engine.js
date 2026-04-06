@@ -147,16 +147,35 @@ function createDragon() {
   ]);
 }
 
+function createShadowWitch() {
+  return new Fighter('Shadow Witch', 150, 80, 10, [
+    new Ability('Shadow Bolt', 12, 0, 0, 0, null, 'Basic dark magic attack'),
+    new Ability('Soul Drain', 18, 15, 3, 20, null, 'Drain 18 HP from target and heal self for 15'),
+    new Ability('Hex Curse', 8, 0, 2, 12,
+      [StatusEffect.WEAKENED, 2, 0],
+      'Deal 8 damage and weaken target for 2 turns'),
+    new Ability('Death Coil', 30, 0, 4, 25, null, 'Unleash a devastating dark bolt for 30 damage'),
+    new Ability('Phantom Shroud', 0, 0, 5, 18,
+      [StatusEffect.SHIELD, 2, 0.5],
+      'Shroud self in shadows, reducing damage by 50% for 2 turns'),
+  ]);
+}
+
+function createBoss(bossType = 'dragon') {
+  return bossType === 'witch' ? createShadowWitch() : createDragon();
+}
+
 // ─── BossFightGame ─────────────────────────────────────────────────────────
 class BossFightGame {
-  constructor() {
+  constructor(bossType = 'dragon') {
     this.MAX_TURNS = 50;
+    this.bossType = bossType;
     this.reset();
   }
 
   reset() {
     this.hero = createHero();
-    this.dragon = createDragon();
+    this.dragon = createBoss(this.bossType);
     this.turn = 0;
     this.done = false;
     this.winner = null;
@@ -202,6 +221,10 @@ class BossFightGame {
   }
 
   _bossAI() {
+    return this.bossType === 'witch' ? this._shadowWitchAI() : this._dragonAI();
+  }
+
+  _dragonAI() {
     if (this.dragon.hasEffect(StatusEffect.STUNNED)) return -1;
 
     const available = this.dragon.abilities
@@ -225,6 +248,40 @@ class BossFightGame {
 
     // Tail Slam
     if (available.includes(2) && Math.random() < 0.5) return 2;
+
+    // Random fallback
+    return available[Math.floor(Math.random() * available.length)];
+  }
+
+  _shadowWitchAI() {
+    if (this.dragon.hasEffect(StatusEffect.STUNNED)) return -1;
+
+    const available = this.dragon.abilities
+      .map((a, i) => a.isAvailable(this.dragon.mana) ? i : -1)
+      .filter(i => i >= 0);
+
+    if (available.length === 0) return 0;
+
+    // Soul Drain if low HP — heals and damages
+    if (this.dragon.hp < this.dragon.maxHp * 0.4 && available.includes(1)) {
+      return 1; // Soul Drain
+    }
+
+    // Phantom Shroud if not already shielded
+    if (available.includes(4) && !this.dragon.hasEffect(StatusEffect.SHIELD)) {
+      if (Math.random() < 0.35) return 4;
+    }
+
+    // Death Coil — high burst
+    if (available.includes(3) && Math.random() < 0.65) return 3;
+
+    // Hex Curse — weaken player
+    if (available.includes(2) && !this.hero.hasEffect(StatusEffect.WEAKENED)) {
+      if (Math.random() < 0.55) return 2;
+    }
+
+    // Soul Drain for sustain
+    if (available.includes(1) && Math.random() < 0.40) return 1;
 
     // Random fallback
     return available[Math.floor(Math.random() * available.length)];
@@ -388,6 +445,7 @@ class BossFightGame {
       maxTurns: this.MAX_TURNS,
       done: this.done,
       winner: this.winner,
+      bossType: this.bossType,
       log: this.log.slice(-30), // last 30 lines
       player: {
         name: this.hero.name,
@@ -661,4 +719,4 @@ class DuelGame {
   }
 }
 
-module.exports = { BossFightGame, DuelGame, createHero, createDragon, createMirrorHero, StatusEffect, Ability, Fighter };
+module.exports = { BossFightGame, DuelGame, createHero, createDragon, createShadowWitch, createBoss, createMirrorHero, StatusEffect, Ability, Fighter };

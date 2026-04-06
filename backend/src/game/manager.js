@@ -9,9 +9,10 @@ const WEIGHTS_PATH = path.resolve(__dirname, '../../../trained_agent.json');
 
 class GameManager {
   constructor() {
-    this.mode  = 'watch'; // 'watch' | 'play' | 'duel'
-    this.game  = new BossFightGame();
-    this.agent = new DQNAgent();
+    this.mode     = 'watch'; // 'watch' | 'play' | 'duel'
+    this.bossType = 'dragon'; // 'dragon' | 'witch'
+    this.game     = new BossFightGame(this.bossType);
+    this.agent    = new DQNAgent();
     this._tryLoadAgent();
   }
 
@@ -38,12 +39,23 @@ class GameManager {
     if (mode === 'duel' && !(this.game instanceof DuelGame)) {
       this.game = new DuelGame();
     } else if (mode !== 'duel' && this.game instanceof DuelGame) {
-      this.game = new BossFightGame();
+      this.game = new BossFightGame(this.bossType);
     }
   }
 
+  setBoss(bossType) {
+    const valid = ['dragon', 'witch'];
+    if (!valid.includes(bossType)) return this._buildResponse();
+    this.bossType = bossType;
+    // Only applies in non-duel mode
+    if (!(this.game instanceof DuelGame)) {
+      this.game = new BossFightGame(this.bossType);
+    }
+    return this._buildResponse();
+  }
+
   reset() {
-    this.game = this.mode === 'duel' ? new DuelGame() : new BossFightGame();
+    this.game = this.mode === 'duel' ? new DuelGame() : new BossFightGame(this.bossType);
     return this._buildResponse();
   }
 
@@ -99,6 +111,7 @@ class GameManager {
     return {
       hasAgent: this.agent.isLoaded(),
       mode: this.mode,
+      bossType: this.bossType,
       turn: this.game.turn,
       done: this.game.done,
       winner: this.game.winner,

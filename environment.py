@@ -4,8 +4,11 @@ Gym-compatible Environment Wrapper
 Wraps the BossFightGame for use with RL algorithms.
 """
 
+import random
 import numpy as np
 from game_engine import BossFightGame
+
+BOSS_TYPES = ['dragon', 'witch']
 
 
 class BossFightEnv:
@@ -13,14 +16,22 @@ class BossFightEnv:
     OpenAI Gym-like environment for the boss fight.
     Observation: 20-dimensional float vector (normalized 0-1)
     Action space: 5 discrete actions (player abilities)
+
+    boss_type: 'dragon', 'witch', or None (random each episode).
     """
 
-    def __init__(self):
-        self.game = BossFightGame()
+    def __init__(self, boss_type: str = None):
+        self.boss_type = boss_type  # None → random per episode
+        initial_boss = boss_type or 'dragon'
+        self.game = BossFightGame(initial_boss)
         self.n_actions = 5
         self.n_observations = len(self.game.get_state())
 
     def reset(self) -> np.ndarray:
+        if self.boss_type is None:
+            # Alternate randomly between bosses so agent learns both
+            chosen = random.choice(BOSS_TYPES)
+            self.game = BossFightGame(chosen)
         state = self.game.reset()
         return self._state_to_array(state)
 

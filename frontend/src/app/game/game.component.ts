@@ -23,6 +23,7 @@ import { QChartComponent } from './components/q-chart/q-chart.component';
 export class GameComponent implements OnInit, OnDestroy {
   state: GameState | null = null;
   mode: 'watch' | 'play' | 'duel' = 'watch';
+  bossType: 'dragon' | 'witch' = 'dragon';
   autoPlay = false;
   autoPlaySpeed = 800; // ms between steps
   isThinking = false;
@@ -51,6 +52,7 @@ export class GameComponent implements OnInit, OnDestroy {
       this.gameService.state$.subscribe(s => {
         this.state = s;
         this.isThinking = false;
+        if (s?.bossType) this.bossType = s.bossType;
       })
     );
 
@@ -66,6 +68,11 @@ export class GameComponent implements OnInit, OnDestroy {
     this.mode = m;
     this.ws.setMode(m);
     if (m !== 'watch') this._stopAutoPlay();
+  }
+
+  setBossType(bt: 'dragon' | 'witch'): void {
+    this.bossType = bt;
+    this.ws.setBoss(bt);
   }
 
   doAction(i: number): void {

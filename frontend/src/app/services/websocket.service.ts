@@ -85,6 +85,10 @@ export class WebsocketService implements OnDestroy {
     this.send({ type: 'game_mode', mode });
   }
 
+  setBoss(bossType: 'dragon' | 'witch'): void {
+    this.send({ type: 'game_boss', bossType });
+  }
+
   triggerAgentStep(): void {
     this.send({ type: 'agent_step' });
   }

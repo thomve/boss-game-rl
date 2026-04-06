@@ -270,6 +270,20 @@
   }
 }
 
+.btn-dragon {
+  background: rgba(220, 80, 30, 0.15);
+  border-color: rgba(220, 80, 30, 0.6);
+  color: #e06030;
+  &:hover { background: rgba(220, 80, 30, 0.25); border-color: #e06030; }
+}
+
+.btn-witch {
+  background: rgba(160, 60, 220, 0.15);
+  border-color: rgba(160, 60, 220, 0.6);
+  color: #c070e8;
+  &:hover { background: rgba(160, 60, 220, 0.25); border-color: #c070e8; }
+}
+
 .speed-group { margin-left: 0.5rem; }
 
 .no-agent-warn {
