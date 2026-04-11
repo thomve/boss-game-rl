@@ -1,8 +1,8 @@
 <div align="center">
 
-<h1>⚔&nbsp; Boss Fight RL &nbsp;⚔</h1>
+<h1>⚔&nbsp; Boss Fight with Reinforcement Learning &nbsp;⚔</h1>
 
-<p><strong>A turn-based boss fight where a Deep Q-Network learns to defeat the Dragon Lord from scratch.</strong></p>
+<p><strong>A turn-based boss fight where a Deep Q-Network learns to defeat bosses from scratch.</strong></p>
 
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Angular](https://img.shields.io/badge/Angular-21-DD0031?style=flat-square&logo=angular&logoColor=white)
